@@ -1,0 +1,552 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beamy Sports - Help & Support</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'style.css' %}"
+    <style>
+        #topbar {
+    height: 70px;               /* Matches the sidebar logo-section height */
+    background: white;
+    border-bottom: 1px solid var(--gray-200); /* Same line color as sidebar */
+    padding: 0 30px;           /* Standardized padding */
+    display: flex;
+    align-items: center;       /* Centers content so the line stays straight */
+    margin-bottom: 0;          /* Removes any gap */
+}
+
+/* Fixes the breadcrumb alignment inside the topbar */
+
+
+/* Ensures the sidebar line and topbar line are at the same Y-axis */
+.logo-section {
+    height: 70px;
+    border-bottom: 1px solid var(--gray-200);
+}
+    </style>
+</head>
+<body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="logo-section">
+            <div class="logo-text">
+                <h1>Beamy Sports</h1>
+                <p>ERP System</p>
+            </div>
+            <button class="btn" id="toggleSidebar">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="nav-section">
+            {% if user.role == 'admin' %}
+            <a href="{% url 'core:dashboard' %}" class="nav-item" data-module="dashboard">
+                <i class="bi bi-grid-fill"></i>
+                <span>Dashboard</span>
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'production' or user.role == 'admin' %}
+            <a href="{% url 'production:dashboard' %}" class="nav-item" data-module="Production">
+                <i class="bi bi-gear-fill"></i>
+                <span>Production</span>
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'inventory' or user.role == 'admin' %}
+            <a href="{% url 'inventory:dashboard' %}" class="nav-item" data-module="inventory">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Inventory</span>
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'supplier' or user.role == 'admin' %}
+            <a href="{% url 'suppliers:dashboard' %}" class="nav-item" data-module="SuppliersModule">
+                <i class="bi bi-truck"></i>
+                <span>Suppliers</span>
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'hr' or user.role == 'admin' %}
+            <a href="{% url 'hr:dashboard' %}" class="nav-item" data-module="HR">
+                <i class="bi bi-people-fill"></i>
+                <span>HR & Payroll</span>
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'finance' or user.role == 'admin' %}
+            <a href="{% url 'finance:dashboard' %}" class="nav-item" data-module="FinanceModule">
+                <i class="bi bi-currency-dollar"></i>
+                <span>Finance</span>
+            </a>
+            {% endif %}
+            
+            {% if user.role == 'admin' %}
+            <a href="{% url 'core:ai_insights' %}" class="nav-item" data-module="ai-insights">
+                <i class="bi bi-lightbulb-fill"></i>
+                <span>AI Insights</span>
+            </a>
+            <a href="{% url 'core:admin_dashboard' %}" class="nav-item" data-module="admin">
+                <i class="bi bi-sliders"></i>
+                <span>Admin</span>
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-bottom">
+            <a href="{% url 'core:help' %}" class="nav-item active" data-module="help">
+                <i class="bi bi-question-circle"></i>
+                <span>Help</span>
+            </a>
+            <a href="{% url 'core:logout' %}" class="nav-item">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div id="topbar">
+        <div class="d-flex align-items-center justify-content-between h-100">
+            <!-- Left: Mobile Menu + Breadcrumbs -->
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn d-md-none" id="mobileMenuToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Help & Support</li>
+                    </ol>
+                </nav>
+            </div>
+            
+
+
+                <!-- Notifications Dropdown -->
+<div class="dropdown notification-dropdown">
+    <button class="btn position-relative" id="notificationDropdown" data-bs-toggle="dropdown" data-dropdown="notifications">
+        <i class="bi bi-bell"></i>
+        <span class="notification-badge"></span>
+    </button>
+    
+    <!-- Backdrop overlay -->
+    <div class="dropdown-backdrop" id="notificationBackdrop"></div>
+    
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" data-dropdown="notifications" aria-labelledby="notificationDropdown">
+        <button class="dropdown-close-btn" onclick="closeNotificationDropdown()">
+            <i class="bi bi-x"></i>
+        </button>
+        
+        <h6 class="dropdown-header">Notifications (3)</h6>
+        <div class="dropdown-divider"></div>
+        
+        <!-- Notification Item 1 -->
+        <div class="notification-item">
+            <div class="notification-content">
+                <div class="notification-icon danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="notification-details">
+                    <div class="notification-title">Low Stock Alert</div>
+                    <div class="notification-message">BALL-002 stock level is below minimum threshold</div>
+                    <div class="notification-time">15 minutes ago</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+        
+        <!-- Notification Item 2 -->
+        <div class="notification-item">
+            <div class="notification-content">
+                <div class="notification-icon info">
+                    <i class="bi bi-info-circle-fill"></i>
+                </div>
+                <div class="notification-details">
+                    <div class="notification-title">Delivery Expected</div>
+                    <div class="notification-message">PO PUR-2025-002 delivery expected today</div>
+                    <div class="notification-time">1 hour ago</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+        
+        <!-- Notification Item 3 -->
+        <div class="notification-item">
+            <div class="notification-content">
+                <div class="notification-icon success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div class="notification-details">
+                    <div class="notification-title">Production Completed</div>
+                    <div class="notification-message">Production Order PO-2025-001 task completed</div>
+                    <div class="notification-time">2 hours ago</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dropdown-divider"></div>
+        <a href="#" class="dropdown-item text-center small fw-medium">View all notifications</a>
+    </div>
+</div>
+
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <div class="user-avatar">
+                            JS
+                        </div>
+                        <div class="text-start d-none d-lg-block">
+                            <p class="mb-0 small fw-medium" style="color: var(--text-primary);">John Smith</p>
+                            <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">Production Manager</p>
+                        </div>
+                        <i class="bi bi-chevron-down d-none d-lg-block" style="font-size: 12px;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">My Account</h6></li>
+                        <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>Profile Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:change_password' %}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'core:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="page-header mb-4">
+            <h1>Help & Support</h1>
+            <p>Get help with using the Beamy Sports ERP system</p>
+        </div>
+
+        <!-- Quick Help Cards -->
+        <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="mb-3">
+                    <i class="bi bi-book" style="font-size: 32px; color: var(--primary);"></i>
+                </div>
+                <h4 class="mb-2">User Guide</h4>
+                <p class="text-muted small">Complete documentation and tutorials</p>
+                <a href="#" class="btn btn-sm btn-primary-custom w-100">View Guide</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="mb-3">
+                    <i class="bi bi-film" style="font-size: 32px; color: var(--success);"></i>
+                </div>
+                <h4 class="mb-2">Video Tutorials</h4>
+                <p class="text-muted small">Step-by-step video instructions</p>
+                <a href="#" class="btn btn-sm btn-primary-custom w-100">Watch Videos</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 col-md-6 col-lg-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <div class="mb-3">
+                    <i class="bi bi-chat-left-text" style="font-size: 32px; color: var(--info);"></i>
+                </div>
+                <h4 class="mb-2">FAQ</h4>
+                <p class="text-muted small">Frequently asked questions</p>
+                <a href="#" class="btn btn-sm btn-primary-custom w-100">View FAQ</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+        <!-- Getting Started -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Getting Started</h3>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="mb-3">System Navigation</h5>
+                                <ul class="list-unstyled" style="line-height: 2;">
+                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Understanding the Dashboard</li>
+                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Using the Sidebar Navigation</li>
+                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Working with Tables and Filters</li>
+                                    <li><i class="bi bi-check-circle-fill text-success me-2"></i>Creating and Editing Records</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="mb-3">User Roles & Permissions</h5>
+                                <ul class="list-unstyled" style="line-height: 2;">
+                                    <li><i class="bi bi-person-badge me-2" style="color: var(--primary);"></i>Administrator - Full access</li>
+                                    <li><i class="bi bi-person-badge me-2" style="color: var(--success);"></i>Manager - Departmental access</li>
+                                    <li><i class="bi bi-person-badge me-2" style="color: var(--info);"></i>User - Limited access</li>
+                                    <li><i class="bi bi-person-badge me-2" style="color: var(--warning);"></i>Viewer - Read-only access</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Module Guides -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">Module Guides</h3>
+                <div class="accordion" id="moduleGuides">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#productionGuide">
+                                <i class="bi bi-gear-fill me-2" style="color: var(--primary);"></i>Production Management
+                            </button>
+                        </h2>
+                        <div id="productionGuide" class="accordion-collapse collapse show" data-bs-parent="#moduleGuides">
+                            <div class="accordion-body">
+                                <p><strong>Key Features:</strong></p>
+                                <ul>
+                                    <li>Create and manage production orders</li>
+                                    <li>Track production progress and timelines</li>
+                                    <li>Assign tasks to production teams</li>
+                                    <li>Monitor quality control checks</li>
+                                    <li>Generate production reports</li>
+                                </ul>
+                                <p><strong>Quick Tips:</strong></p>
+                                <ul>
+                                    <li>Use the progress bars to monitor order completion</li>
+                                    <li>Set up alerts for delayed orders</li>
+                                    <li>Export production data for analysis</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#inventoryGuide">
+                                <i class="bi bi-box-seam-fill me-2" style="color: var(--primary);"></i>Inventory Management
+                            </button>
+                        </h2>
+                        <div id="inventoryGuide" class="accordion-collapse collapse" data-bs-parent="#moduleGuides">
+                            <div class="accordion-body">
+                                <p><strong>Key Features:</strong></p>
+                                <ul>
+                                    <li>Track stock levels in real-time</li>
+                                    <li>Set up automatic reorder points</li>
+                                    <li>Manage multiple warehouses</li>
+                                    <li>Conduct stock audits</li>
+                                    <li>Generate inventory reports</li>
+                                </ul>
+                                <p><strong>Quick Tips:</strong></p>
+                                <ul>
+                                    <li>Set reorder points to avoid stockouts</li>
+                                    <li>Use barcode scanning for quick updates</li>
+                                    <li>Regularly review slow-moving items</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#financeGuide">
+                                <i class="bi bi-currency-dollar me-2" style="color: var(--primary);"></i>Finance & Accounting
+                            </button>
+                        </h2>
+                        <div id="financeGuide" class="accordion-collapse collapse" data-bs-parent="#moduleGuides">
+                            <div class="accordion-body">
+                                <p><strong>Key Features:</strong></p>
+                                <ul>
+                                    <li>Create and manage invoices</li>
+                                    <li>Track accounts receivable and payable</li>
+                                    <li>Generate financial reports</li>
+                                    <li>Process expense claims</li>
+                                    <li>Manage tax calculations</li>
+                                </ul>
+                                <p><strong>Quick Tips:</strong></p>
+                                <ul>
+                                    <li>Set up automatic payment reminders</li>
+                                    <li>Use templates for recurring invoices</li>
+                                    <li>Export reports for accounting software</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Features -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title">AI Features</h3>
+                <div class="row g-3">
+                    <div class="col-12 col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <i class="bi bi-stars" style="font-size: 24px; color: var(--info);"></i>
+                                </div>
+                                <h5>Demand Forecasting</h5>
+                                <p class="small text-muted">AI predicts future demand based on historical data, seasonality, and market trends.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <i class="bi bi-exclamation-triangle" style="font-size: 24px; color: var(--warning);"></i>
+                                </div>
+                                <h5>Anomaly Detection</h5>
+                                <p class="small text-muted">AI identifies unusual patterns in production, inventory, and supplier performance.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <i class="bi bi-lightbulb" style="font-size: 24px; color: var(--success);"></i>
+                                </div>
+                                <h5>Smart Recommendations</h5>
+                                <p class="small text-muted">AI provides actionable insights to optimize operations and reduce costs.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Support -->
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Contact Support</h3>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="bi bi-envelope" style="font-size: 32px; color: var(--primary);"></i>
+                                </div>
+                                <h5>Email Support</h5>
+                                <p class="text-muted small">support@beamysports.com</p>
+                                <p class="small">Response time: Within 4 hours</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <i class="bi bi-telephone" style="font-size: 32px; color: var(--success);"></i>
+                                </div>
+                                <h5>Phone Support</h5>
+                                <p class="text-muted small">+1-555-ERP-HELP</p>
+                                <p class="small">Mon-Fri, 9AM-6PM EST</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="alert alert-info mt-4">
+            <div class="d-flex gap-3">
+                <i class="bi bi-shield-check" style="font-size: 24px;"></i>
+                <div>
+                    <h3 class="mb-2" style="font-size: 16px;">Important Security Note</h3>
+                    <p class="mb-0 small">
+                        This ERP system is designed for managing business operations. It is not intended for collecting
+                        Personally Identifiable Information (PII) or handling highly sensitive data without proper security
+                        measures. Always follow your organization's data protection policies and implement appropriate
+                        security controls based on your specific requirements.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Information -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">System Information</h3>
+                <div class="row g-3">
+                    <div class="col-12 col-md-6">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Version:</strong></p>
+                                <p class="mb-3">1.0.0</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Build:</strong></p>
+                                <p class="mb-3">2025.10.28</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Environment:</strong></p>
+                                <p class="mb-3">Production</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>API Version:</strong></p>
+                                <p class="mb-3">v2</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Database:</strong></p>
+                                <p class="mb-3"><span class="badge badge-success">Connected</span></p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Last Backup:</strong></p>
+                                <p class="mb-3">Oct 28, 2025 2:00 AM</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Uptime:</strong></p>
+                                <p class="mb-3">99.9%</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><strong>Users Online:</strong></p>
+                                <p class="mb-3">12</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{% static 'main.js' %}"></script>
+</body>
+</html>

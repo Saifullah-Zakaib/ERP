@@ -1,0 +1,890 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Beamy Sports ERP - Streamline. Automate. Grow.</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  
+  <style>
+
+    #contact {
+    margin-top: 0 !important;
+    padding-top: 1px !important; /* Aap apni pasand ke mutabiq kam kar sakte hain */
+}
+/* Contact Section Icons ko Features jaisa banane ke liye */
+.contact-icon-box {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(to bottom right, var(--primary-blue), var(--dark-blue));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+
+    .contact-info-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    height: 100%;
+}
+.contact-info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(20, 53, 123, 0.1);
+    border-color: var(--dark-blue);
+}
+.contact-icon-circle {
+    width: 50px;
+    height: 50px;
+    background: #f0f7ff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+.contact-icon-circle i {
+    color: var(--primary-blue);
+}
+    body {
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      background-color: #F7F9FA;
+      color: #1E293B;
+    }
+
+    /* Adjusted Root Variables to match the deep blue theme from admin.html sidebar */
+    :root {
+      /* Deep Blue for the main color (from admin.html sidebar background) */
+      --primary-blue: #14357B; 
+      /* Brighter Blue for hover/accent (from admin.html active link background) */
+      --dark-blue: #2C65F1; 
+      --text-gray: #64748B;
+      --text-dark: #1E293B;
+    }
+
+    
+   /* Navbar */
+    .navbar {
+     
+      background-color: var(--primary-blue);
+      
+      /* 🔴 UPDATED: Box shadow ko dark background ke liye adjust kiya */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); 
+      transition: all 0.2s;
+    }
+
+    /* 🆕 NEW: Navbar ke andar ke text aur brand name ko white karna */
+    .navbar-light .navbar-brand,
+    .navbar-light .navbar-toggler-icon,
+    .navbar .text-dark {
+      color: white !important; /* Brand name aur text white ho jayega */
+    }
+
+    .nav-link-custom {
+      /* 🔴 CHANGED: Links ka default color white ho jayega */
+      color: white;
+      transition: color 0.2s;
+    }
+
+    .nav-link-custom:hover {
+      /* Hover par bright blue dikhega */
+      color: var(--dark-blue); 
+    }
+
+    .logo-box {
+  width: 50px;
+  height: 50px;
+  background: transparent; /* 🔴 gradient removed */
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+    /* --- HERO SECTION - FULL BACKGROUND IMAGE --- */
+    .hero-section {
+      /* Blue gradient removed, replaced with image properties */
+      background-image: url('{% static "sources/f3.jpg" %}'); /* ⬅️ Image Source (Image must be in the same folder) */
+      background-size: cover;
+      background-position: center 30%; /* Image ko halka sa upar rakhega */
+      background-repeat: no-repeat;
+      color: white;
+      position: relative;
+      overflow: hidden;
+      padding-top: 7rem !important;
+      padding-bottom: 3.8rem !important;
+    }
+
+    /* 🆕 Dark Overlay for better text readability on top of the image */
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* Dark overlay (75% opacity deep blue) */
+        background: rgba(20, 53, 123, 0.3);
+        z-index: 1; /* Overlay ko content se neeche rakhen */
+    }
+
+    .hero-section .hero-content {
+        position: relative;
+        z-index: 2; /* Content ko overlay ke upar layein */
+    }
+
+    .hero-section .abstract-circle {
+      position: absolute;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      z-index: 0; /* Circles ko sabse neeche rakhen */
+    }
+    /* --- END HERO SECTION CSS --- */
+
+
+    /* Button Styles (Login, Explore Features) */
+    .btn-login {
+      background-color: white; /* Changed from green to deep blue */
+      color: var(--primary-blue);
+    }
+
+    .btn-login:hover {
+      background-color: var(--dark-blue); /* Changed from dark-green to brighter blue */
+      color: white;
+    }
+
+    .btn-white-on-green {
+      /* Renamed this class in the HTML to btn-white-on-blue for clarity, but keeping old class name here to show the change */
+      background-color: var(--primary-blue); /* Changed from green to deep blue */
+      color: white;
+      border: 1px solid white;
+      font-weight: 500;
+    }
+
+    .btn-white-on-green:hover {
+      background-color: var(--dark-blue);
+    }
+
+    .btn-outline-white {
+      background-color: var(--primary-blue); /* Changed from green to deep blue */
+      border: 1px solid white;
+      color: white;
+      font-weight: 500;
+    }
+
+    .btn-outline-white:hover {
+     background-color: var(--dark-blue);
+    }
+/* Add this to your <style> block */
+.navbar {
+    /* ... existing navbar styles ... */
+    height: 70px; /* Assuming your fixed navbar is roughly 70px tall */
+}
+
+.notice-board {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
+    margin-top: -50px; /* Hero section ke thora upar overlap karega attractive look ke liye */
+    position: relative;
+    z-index: 10;
+}
+
+.notice-header {
+    background: var(--primary-blue);
+    color: white;
+    padding: 15px 25px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.notice-item {
+    padding: 15px 25px;
+    border-bottom: 1px solid #edf2f7;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.notice-item:last-child { border-bottom: none; }
+.notice-item:hover { background: #f8fafc; }
+
+.badge-urgent { background: #fee2e2; color: #dc2626; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+.badge-info { background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+.badge-success { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+
+.notice-date { font-size: 13px; color: #94a3b8; min-width: 80px; }
+
+
+/* 🔴 NEW: To adjust scroll position for fixed/sticky headers */
+#home, #features, #about, #contact {
+    /* Set this value to be slightly greater than the height of your fixed navbar */
+    scroll-margin-top: 70px; 
+}
+
+ /* Cards */
+.feature-card {
+  /* Initial appearance: Lighter shadow aur subtle border */
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Very faint border for definition */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05); /* Softer initial shadow */
+  transition: all 0.3s ease; /* Transition ko smooth banaya */
+  border-radius: 12px; /* Thoda zyada rounded corners */
+}
+
+.feature-card:hover {
+  /* Hover effect: Card zyada upar uthega aur highlight hoga */
+  transform: translateY(-8px); /* Card ko zyada lift (utha hua) karega (was -4px) */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Stronger, more attractive shadow */
+  border-color: var(--dark-blue); /* Hover par blue color ka border highlight */
+}
+
+.icon-box {
+  /* Icon Box: Size increase aur better spacing */
+  width: 64px; /* Size increased (was 48px) */
+  height: 64px; /* Size increased */
+  /* Gradient remains the same: deep blue/brighter blue */
+  background: linear-gradient(to bottom right, var(--primary-blue), var(--dark-blue));
+  border-radius: 12px; /* Corner radius badhaya */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem; /* Heading se zyada space (was 1rem) */
+}
+
+/* Icon size ko bhi bada karein (yeh class aapke code mein alag se hogi, lekin isko bhi badal dein) */
+.lucide-icon {
+    width: 32px; /* Icon size increased (was 24px) */
+    height: 32px;
+    color: white;
+}
+
+.feature-description {
+  /* Description ka color thoda light rakha gaya hai, jo theek hai */
+  color: var(--text-gray);
+  line-height: 1.6; /* Line spacing thoda zyada kiya for better readability */
+}
+
+
+    /* Overlay background */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      z-index: 1400;
+    }
+    .overlay.active {
+      display: block;
+    }
+
+.erp-btn {
+    background-color: #1a3a7a; /* Dark blue matching your image */
+    color: white;
+    padding: 10px 25px;
+    border: 1px solid #ffffff; /* Subtle white border like the image */
+    border-radius: 8px;        /* Rounded corners */
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;               /* Full width for the form */
+    margin-top: 10px;
+}
+
+/* Hover effect: Light blue */
+.erp-btn:hover {
+    background-color: #3498db; /* Light blue on hover */
+}
+
+    /* Footer */
+    .footer-custom {
+      background-color: var(--text-dark);
+      color: white;
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .lucide-icon {
+      width: 24px;
+      height: 24px;
+      color: white;
+    }
+    .logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.emoji-btn {
+    font-size: 2rem;
+    padding: 10px 25px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.emoji-btn:hover, .emoji-btn.active {
+    transform: scale(1.1);
+    border-color: #2C65F1;
+    background-color: #f0f7ff;
+}
+
+/* Submit Feedback Button - Normal State */
+.submit-feedback-btn {
+    background-color: #14357B !important; /* Deep Blue from theme */
+    color: white !important;
+    border: none !important;
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* Submit Feedback - Hover (Light Blue) */
+.submit-feedback-btn:hover {
+    background-color: #2C65F1 !important; /* Brighter Blue from theme */
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(44, 101, 241, 0.3);
+}
+
+/* Back Button - Normal State */
+.back-btn-custom {
+    background-color: #f8fafc !important;
+    color: #64748B !important; /* Text Gray */
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+/* Back Button - Hover (Red) */
+.back-btn-custom:hover {
+    background-color: #dc3545 !important; /* Red color for warning/back */
+    color: white !important;
+    border-color: #dc3545 !important;
+}
+.extra-small { font-size: 0.7rem; }
+  /* Custom scrollbar */
+  #noticeModal .modal-body::-webkit-scrollbar {
+    width: 5px;
+  }
+  #noticeModal .modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+  }
+  #noticeModal .modal-body::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  </style>
+</head>
+<body>
+
+
+<!--Logo of Beamy Sports-->
+  <nav class="navbar navbar-expand-lg sticky-top navbar-light">
+    <div class="container-fluid px-3 px-md-4 px-lg-5" style="max-width: 1280px; margin: 0 auto;">
+      <div class="d-flex align-items-center gap-2">
+        <div class="logo-box">
+  <img src="{% static 'sources/beamy.png' %}" alt="Logo" class="logo-img">
+</div>
+
+        <span class="navbar-brand mb-0 h1 text-dark">Beamy Sports ERP</span>
+      </div>
+
+<!--Nav Bar Section-->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center gap-3">
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="#home">Home</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="#about">About</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="#features">Features</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="#" id="noticeBtn">Notice Board</a></li>
+          <li class="nav-item"><a class="nav-link nav-link-custom" href="#contact">Contact</a></li>
+
+          <li class="nav-item d-none d-lg-block">
+            <button class="btn btn-login d-flex align-items-center" onclick="onLoginClick()" type="button">
+              Login
+              <i data-lucide="arrow-right" class="ms-2" style="width: 16px; height: 16px;"></i>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!--Hero Section-->
+
+  <section id="home" class="hero-section py-5">
+    
+    <div class="container position-relative py-5 hero-content">
+      <div class="row"> 
+        
+        <div class="col-lg-8 col-xl-7"> 
+          <h1 class="display-4 fw-bold mb-4">Streamline. Automate. Grow.</h1>
+          <p class="fs-5 mb-5">An intelligent ERP platform that powers Beamy Sports operations end-to-end.</p>
+          <div class="d-flex flex-column flex-sm-row gap-3">
+            <button class="btn btn-lg btn-white-on-green" onclick="document.getElementById('features').scrollIntoView({behavior:'smooth'})">Explore Features</button>
+            <button class="btn btn-lg btn-outline-white" onclick="onLoginClick()">Login to Dashboard</button>
+          </div>
+        </div>
+
+        </div>
+    </div>
+    
+  </section>
+<br>
+<br>
+<br>
+
+
+<!--Notice Board Section Form-->
+<div class="modal fade" id="noticeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+    <div class="modal-content border-0 shadow-lg" style="border-radius: 12px; overflow: hidden;">
+      <div class="modal-header text-white border-0 p-3" style="background-color: #1E3A8A;">
+        <h6 class="modal-title d-flex align-items-center gap-2 fw-bold mb-0">
+          <i class="bi bi-megaphone" style="font-size: 1rem;"></i> Announcements Board
+        </h6>
+        <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal" aria-label="Close" style="font-size: 0.75rem;"></button>
+      </div>
+      <div class="modal-body p-0" style="max-height: 420px; overflow-y: auto; background-color: #f8fafc;">
+        {% if notices %}
+          {% for notice in notices %}
+          <div class="p-3 border-bottom {% if notice.is_pinned %}shadow-sm{% else %}bg-white{% endif %}" 
+               {% if notice.is_pinned %}style="background-color: #eff6ff; border-left: 5px solid #1E3A8A; position: relative;"{% else %}style="position: relative;"{% endif %}>
+            {% if notice.is_pinned %}
+            <div style="position: absolute; top: 12px; right: 15px; color: #1E3A8A; opacity: 0.7;">
+              <i class="bi bi-pin-angle-fill" style="transform: rotate(45deg); display: inline-block;"></i>
+            </div>
+            {% endif %}
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <div class="d-flex gap-2 align-items-center">
+                <span class="badge text-uppercase 
+                  {% if notice.category == 'urgent' %}bg-danger
+                  {% elif notice.category == 'holiday' %}bg-success
+                  {% elif notice.category == 'policy' %}bg-warning
+                  {% elif notice.category == 'event' %}bg-info
+                  {% else %}bg-primary{% endif %}" 
+                  style="font-size: 0.6rem; padding: 4px 8px; border-radius: 4px;">
+                  {{ notice.get_category_display }}
+                </span>
+                {% if notice.is_pinned %}
+                <small class="fw-bold text-primary" style="font-size: 0.7rem;">PINNED</small>
+                {% endif %}
+              </div>
+              <small class="text-muted extra-small">{{ notice.created_at|timesince }} ago</small>
+            </div>
+            <h6 class="mb-1 fw-bold text-dark" style="font-size: 0.95rem; padding-right: 20px;">{{ notice.title }}</h6>
+            <p class="mb-0 text-secondary" style="font-size: 0.8rem; line-height: 1.4;">{{ notice.content }}</p>
+            <small class="text-muted extra-small d-block mt-1">Posted by {{ notice.posted_by.get_full_name }}</small>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="p-4 text-center text-muted">
+            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+            <p class="mb-0 mt-2">No announcements yet</p>
+          </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer border-0 p-2 bg-light">
+        <button type="button" class="btn btn-sm btn-outline-secondary w-100 fw-semibold" data-bs-dismiss="modal" style="font-size: 0.8rem; border-radius: 6px; padding: 8px;">Close Board</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--About Section-->
+
+<section class="pb-5 pt-0 bg-light" id="about" style="margin-top: -40px;">
+    <div class="container py-2"> <div class="row align-items-center">
+            <div class="col-lg-5">
+                <h2 class="display-6 fw-bold mb-4">Sialkot's Digitized<br><span style="color: var(--dark-blue);">Sports Industry</span></h2>
+                <p class="text-secondary mb-4">Beamy Sports ERP is a specialized intelligence platform engineered for the sports goods industry. Our AI algorithms help supervisors which saves time and energy.</p>
+                
+                <div class="d-flex align-items-start gap-3 mb-4">
+                    <div class="p-2 rounded-circle bg-white shadow-sm">
+                        <i data-lucide="brain-circuit" class="text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Predictive AI Forecasting</h6>
+                        <p class="small text-muted">Leverage AI to predict material demand and production bottlenecks before they occur, ensuring 100% on-time delivery.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start gap-3 mb-4">
+                    <div class="p-2 rounded-circle bg-white shadow-sm">
+                        <i data-lucide="monitor-dot" class="text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Real-Time Floor Monitoring</h6>
+                        <p class="small text-muted">Get a live bird’s-eye view of your stitching units, cutting halls, and quality checkpoints to eliminate idle time.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-start gap-3">
+                    <div class="p-2 rounded-circle bg-white shadow-sm">
+                        <i data-lucide="shield-check" class="text-primary"></i>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-bold">Precision & Zero-Error Logs</h6>
+                        <p class="small text-muted">Reduce manual data entry errors by 99% with automated barcode scanning and synchronized inventory logs.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-7 mt-5 mt-lg-0 text-center">
+                 <div class="p-4 bg-white rounded-4 shadow-lg border border-primary border-opacity-10">
+                    <img src="{% static 'sources/dash.png' %}" class="img-fluid rounded-3" alt="Beamy Sports AI Dashboard Preview">
+                 </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+<!--Features Section-->
+
+  <section id="features" class="py-5 py-md-5 px-3">
+            <div class="container">
+                <div class="text-center mb-5">
+                    <h2 class="display-6 fw-bold text-dark mb-3">
+                        Powerful Features for Modern Operations
+                    </h2>
+                    <p class="text-secondary max-w-2xl mx-auto">
+                        Everything you need to manage your enterprise, all in one place.
+                    </p>
+                </div>
+
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card feature-card">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="icon-box">
+                                    <i data-lucide="package" class="lucide-icon"></i>
+                                </div>
+                                <h3 class="h5 text-dark mb-2">Smart Inventory Tracking</h3>
+                                <p class="feature-description">Never run out of stock with real-time analytics.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card feature-card">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="icon-box">
+                                    <i data-lucide="trending-up" class="lucide-icon"></i>
+                                </div>
+                                <h3 class="h5 text-dark mb-2">Real-Time Production Flow</h3>
+                                <p class="feature-description">Monitor production processes as they happen.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card feature-card">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="icon-box">
+                                    <i data-lucide="brain" class="lucide-icon"></i>
+                                </div>
+                                <h3 class="h5 text-dark mb-2">Predictive AI Forecasting</h3>
+                                <p class="feature-description">Predict demand before it peaks.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card feature-card">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="icon-box">
+                                    <i data-lucide="dollar-sign" class="lucide-icon"></i>
+                                </div>
+                                <h3 class="h5 text-dark mb-2">Secure Payroll Processing</h3>
+                                <p class="feature-description">Automate payroll with complete accuracy.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card feature-card">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="icon-box">
+                                    <i data-lucide="link-2" class="lucide-icon"></i>
+                                </div>
+                                <h3 class="h5 text-dark mb-2">Supplier Integration Hub</h3>
+                                <p class="feature-description">Seamlessly connect with your supply chain.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card feature-card">
+                            <div class="card-body p-4 p-md-5">
+                                <div class="icon-box">
+                                    <i data-lucide="bar-chart-3" class="lucide-icon"></i>
+                                </div>
+                                <h3 class="h5 text-dark mb-2">Finance & Analytics Suite</h3>
+                                <p class="feature-description">Simplify every transaction, error-free.</p>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+        </section>
+
+
+  <!--Contact Section-->
+<section id="contact" class="pb-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-6 fw-bold text-dark mb-2">Get In Touch</h2>
+            <p class="text-secondary">Beamy Sports ERP Support and Inquiries</p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="contact-icon-box mx-auto">
+                        <i data-lucide="map-pin" class="lucide-icon"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Our Location</h5>
+                    <p class="feature-description mb-0">Industrial Estate, Sialkot,<br>Punjab, Pakistan</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="contact-icon-box mx-auto">
+                        <i data-lucide="phone" class="lucide-icon"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Call Us</h5>
+                    <p class="feature-description mb-0">Office: +92 52 1234567<br>Support: +92 300 1234567</p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center p-4">
+                    <div class="contact-icon-box mx-auto">
+                        <i data-lucide="mail" class="lucide-icon"></i>
+                    </div>
+                    <h5 class="fw-bold text-dark">Email Us</h5>
+                    <p class="feature-description mb-0">info@beamysports.com<br>support@beamysports.com</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay"></div>
+
+<!--Footer Section-->
+
+  <footer class="footer-custom pt-5 pb-3 px-3" style="background-color: #0f172a; border-top: 4px solid var(--primary-blue);">
+    <div class="container">
+        <div class="row g-4 text-start mb-4">
+            <div class="col-md-4">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <img src="{% static 'sources/beamy.png' %}" alt="Logo" style="width: 30px; height: 30px; object-fit: contain;">
+                    <span class="h5 mb-0 fw-bold text-white">Beamy Sports ERP</span>
+                </div>
+                <p class="small text-secondary">The digital backbone of Sialkot's sports manufacturing. Optimized for local high-speed factory networks.</p>
+            </div>
+
+            <div class="col-md-4">
+                <h6 class="text-white fw-bold mb-3">Staff Resources</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2">
+                        <a href="login.html" class="footer-link d-flex align-items-center gap-2">
+                            <i data-lucide="log-in" style="width:14px;"></i> Staff Portal Login
+                        </a>
+                    </li>
+                    
+                    <li class="mb-2">
+                        <a href="javascript:void(0)" id="workerFeedbackBtn" class="footer-link d-flex align-items-center gap-2">
+                            <i data-lucide="message-square" style="width:14px;"></i> Worker Feedback
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!--Worker Feeback Form-->
+
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 20px; border: none; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+            <div class="modal-header text-white" style="background-color: #14357B; border: none; padding: 20px;">
+                <h5 class="modal-title d-flex align-items-center gap-2">
+                    <i data-lucide="smile"></i> Production Feedback
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <p class="text-secondary small mb-4">Your feedback helps improve our factory operations.</p>
+                <label class="form-label fw-bold d-block mb-3">How was your shift today?</label>
+                <div class="d-flex gap-3 justify-content-center mb-4">
+                    <button type="button" class="emoji-btn">😊</button>
+                    <button type="button" class="emoji-btn">😐</button>
+                    <button type="button" class="emoji-btn">😟</button>
+                </div>
+                <div class="text-start">
+                    <label class="form-label fw-bold small text-secondary">Any issues or suggestions?</label>
+                    <textarea id="feedbackText" class="form-control" placeholder="Type your suggestions here..." rows="3" style="background-color: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer border-0 p-4 pt-0 d-flex gap-2">
+    <button type="button" class="btn flex-grow-1 py-3 fw-bold back-btn-custom" data-bs-dismiss="modal">
+        Back
+    </button>
+    
+    <button type="button" class="btn flex-grow-1 py-3 submit-feedback-btn" id="finalSubmit">
+        Submit Feedback
+    </button>
+</div>
+        </div>
+    </div>
+</div>
+
+            <!--System Intelligence and Time in Footer-->
+            <div class="col-md-4">
+                <h6 class="text-white fw-bold mb-3">System Intelligence</h6>
+                <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.05);">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small text-secondary">Server Status:</span>
+                        <span class="badge bg-success-subtle text-success border border-success px-2 py-1" style="font-size: 10px;">● ONLINE</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-secondary">Local Time:</span>
+                        <span id="localClock" class="small fw-bold text-white">--:-- --</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom pt-3 text-center border-top border-secondary border-opacity-25">
+            <p class="small mb-0 text-secondary">© 2025 <span class="text-white fw-bold">Beamy Sports ERP</span> | Made for Sialkot Excellence</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    // Icons Initialize
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+
+    // --- 1. Clock Logic ---
+    function updateClock() {
+        const clockElement = document.getElementById('localClock');
+        if (clockElement) {
+            const now = new Date();
+            clockElement.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // --- 2. Side Support Panel & Contact Logic ---
+    const contactBtn = document.getElementById('contactBtn');
+    const footerSupport = document.getElementById('footerSupportLink');
+    const sidePanel = document.getElementById('contactPanel');
+    const overlay = document.getElementById('overlay');
+
+    const openPanel = (e) => {
+        if(e) e.preventDefault();
+        sidePanel.classList.add('active');
+        overlay.classList.add('active');
+    };
+
+    const closePanel = () => {
+        sidePanel.classList.remove('active');
+        overlay.classList.remove('active');
+    };
+
+    if (contactBtn) contactBtn.addEventListener('click', openPanel);
+    if (footerSupport) footerSupport.addEventListener('click', openPanel);
+    if (overlay) overlay.addEventListener('click', closePanel);
+
+    // --- 3. Notice Board Modal ---
+    const noticeBtn = document.getElementById('noticeBtn');
+    const noticeModalEl = document.getElementById('noticeModal');
+    if (noticeBtn && noticeModalEl) {
+        const noticeModal = new bootstrap.Modal(noticeModalEl);
+        noticeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            noticeModal.show();
+        });
+    }
+
+    // --- 4. Worker Feedback Modal Logic ---
+    const feedbackBtn = document.getElementById('workerFeedbackBtn');
+    const feedbackModalEl = document.getElementById('feedbackModal');
+    
+    if (feedbackBtn && feedbackModalEl) {
+        const feedbackModal = new bootstrap.Modal(feedbackModalEl);
+        
+        feedbackBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            feedbackModal.show();
+        });
+
+        // Emoji selection
+        const emojiBtns = document.querySelectorAll('.emoji-btn');
+        emojiBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                emojiBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Feedback Submit logic
+        const finalSubmit = document.getElementById('finalSubmit');
+        if(finalSubmit) {
+            finalSubmit.addEventListener('click', function() {
+                alert('Thank you! Your feedback has been received on this page.');
+                feedbackModal.hide();
+                document.getElementById('feedbackText').value = '';
+                emojiBtns.forEach(b => b.classList.remove('active'));
+            });
+        }
+    }
+});
+
+// Link home to login page 
+function onLoginClick() {
+    window.location.href = "/login/";
+}
+</script>

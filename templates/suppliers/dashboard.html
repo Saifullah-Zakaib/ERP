@@ -1,0 +1,1621 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beamy Sports - Supplier Management</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+/* Modal ka size aur height fix karne ke liye */
+#addPOModal .modal-dialog {
+    max-height: 95vh;
+    margin: 1.75rem auto;
+}
+
+#addPOModal .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* Header aur Footer ki padding kam ki taake body ke liye jagah bache */
+#addPOModal .modal-header, 
+#addPOModal .modal-footer {
+    padding: 10px 20px;
+    background: #f8fafc;
+}
+
+#addPOModal .modal-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+/* Body ki spacing minimize ki gayi hai */
+#addPOModal .modal-body {
+    padding: 15px 25px;
+    /* Agar phir bhi content bada ho to sirf body scroll hogi, pura page nahi */
+    overflow-y: auto; 
+    max-height: calc(100vh - 150px);
+}
+
+/* Form controls ko mazeed compact banaya */
+#addPOModal .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #475569;
+}
+
+#addPOModal .form-control, 
+#addPOModal .form-select {
+    padding: 6px 10px;
+    font-size: 13px;
+    border-radius: 6px;
+}
+
+/* Rows ke darmiyan margin kam kiya */
+#addPOModal .mb-4 {
+    margin-bottom: 1rem !important;
+}
+
+#addPOModal .mb-3 {
+    margin-bottom: 0.75rem !important;
+}
+
+/* Table styling (Sab se zyada jagah yahi leta hai) */
+#addPOModal .table {
+    margin-bottom: 0;
+}
+
+#addPOModal .table thead th {
+    background: #f1f5f9;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 8px;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+#addPOModal .table tbody td {
+    padding: 5px;
+    vertical-align: middle;
+}
+
+/* Totals section ko compact card banaya */
+#addPOModal .card.bg-light {
+    border: 1px solid #e2e8f0;
+    box-shadow: none;
+}
+
+#addPOModal .card-body {
+    padding: 12px;
+    font-size: 13px;
+}
+
+#addPOModal hr {
+    margin: 8px 0;
+}
+
+/* Terms & Conditions checkboxes compact */
+#addPOModal .form-check {
+    margin-bottom: 4px !important;
+}
+
+#addPOModal .form-check-label {
+    font-size: 11px;
+    line-height: 1.2;
+}
+
+/* Custom Scrollbar taake body clean lage */
+#addPOModal .modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+#addPOModal .modal-body::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+#topbar {
+    height: 70px;               /* Matches the sidebar logo-section height */
+    background: white;
+    border-bottom: 1px solid var(--gray-200); /* Same line color as sidebar */
+    padding: 0 30px;           /* Standardized padding */
+    display: flex;
+    align-items: center;       /* Centers content so the line stays straight */
+    margin-bottom: 0;          /* Removes any gap */
+}
+
+/* Fixes the breadcrumb alignment inside the topbar */
+
+
+/* Ensures the sidebar line and topbar line are at the same Y-axis */
+.logo-section {
+    height: 70px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+/* --- Global Cancel Button Styling --- */
+.btn-cancel-custom {
+    background-color: #ffffff;
+    color: #6c757d;
+    border: 1px solid #d1d5db;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for ALL cancel buttons: Turn Red */
+.btn-cancel-custom:hover {
+    background-color: #dc3545 !important; /* Bootstrap Red */
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+
+/* Status Badge Styling with smooth transitions */
+.status-badge-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-badge-btn.status-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge-btn.status-sent {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge-btn.status-received {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge-btn.status-cancelled {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.status-options-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    z-index: 99999;
+    min-width: 160px;
+    margin: 0;
+    padding: 8px 0;
+}
+
+.status-option {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    white-space: nowrap;
+    color: #374151;
+}
+
+.status-option:hover {
+    background-color: #f3f4f6;
+}
+
+.status-option i {
+    font-size: 14px;
+}
+
+.status-option:first-child {
+    border-radius: 6px 6px 0 0;
+}
+.status-option:last-child {
+    border-radius: 0 0 6px 6px;
+}
+
+/* Ensure table cells don't clip dropdown */
+.table tbody tr td:has(.status-badge-dropdown) {
+    overflow: visible !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Fix table overflow for dropdown */
+.table-responsive {
+    overflow: visible !important;
+}
+
+.table tbody tr td {
+    position: relative;
+    overflow: visible !important;
+}
+
+.table tbody tr {
+    position: relative;
+    z-index: 0;
+}
+
+/* Increase z-index when dropdown is active */
+.table tbody tr.dropdown-active {
+    z-index: 1000 !important;
+}
+
+.card-body {
+    overflow: visible !important;
+}
+
+.card {
+    overflow: visible !important;
+}
+
+    </style>
+</head>
+
+<body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="logo-section">
+            <div class="logo-text">
+                <h1>Beamy Sports</h1>
+                <p>ERP System</p>
+            </div>
+            <button class="btn" id="toggleSidebar">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="nav-section">
+            
+            <a href="{% url 'suppliers:dashboard' %}" class="nav-item active" data-module="SuppliersModule">
+                <i class="bi bi-truck"></i>
+                <span>Suppliers</span>
+            </a>
+           
+            
+            {% if user.role == 'admin' %}
+            <a href="{% url 'core:ai_insights' %}" class="nav-item" data-module="ai-insights">
+                <i class="bi bi-lightbulb-fill"></i>
+                <span>AI Insights</span>
+            </a>
+            {% endif %}
+           
+        </div>
+
+        <div class="sidebar-bottom">
+            <a href="{% url 'core:help' %}" class="nav-item" data-module="help">
+                <i class="bi bi-question-circle"></i>
+                <span>Help</span>
+            </a>
+            <a href="{% url 'core:logout' %}" class="nav-item">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div id="topbar">
+        <div class="d-flex align-items-center justify-content-between h-100">
+            <!-- Left: Mobile Menu + Breadcrumbs -->
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn d-md-none" id="mobileMenuToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Suppliers</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Right: Search, Notifications, User -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Search -->
+                <button class="btn d-none d-md-flex" data-bs-toggle="modal" data-bs-target="#searchModal">
+                    <i class="bi bi-search"></i>
+                </button>
+
+                <!-- Notifications -->
+               <!-- Notifications Dropdown -->
+<div class="dropdown notification-dropdown">
+    <button class="btn position-relative" id="notificationDropdown" data-bs-toggle="dropdown" data-dropdown="notifications">
+        <i class="bi bi-bell"></i>
+        <span class="notification-badge" id="notificationBadge"></span>
+    </button>
+    
+    <!-- Backdrop overlay -->
+    <div class="dropdown-backdrop" id="notificationBackdrop"></div>
+    
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" data-dropdown="notifications" aria-labelledby="notificationDropdown">
+        <button class="dropdown-close-btn" onclick="closeNotificationDropdown()">
+            <i class="bi bi-x"></i>
+        </button>
+        
+        <h6 class="dropdown-header" id="notificationHeader">Notifications (0)</h6>
+        <div class="dropdown-divider"></div>
+        
+        <!-- Dynamic notifications will be loaded here -->
+        <div id="notificationsList">
+            <div class="notification-item">
+                <div class="notification-content">
+                    <div class="notification-details">
+                        <div class="notification-message text-center text-muted">Loading notifications...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="#" class="dropdown-item text-center small fw-medium">View all notifications</a>
+    </div>
+</div>
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <div class="user-avatar">
+                            JS
+                        </div>
+                        <div class="text-start d-none d-lg-block">
+                            <p class="mb-0 small fw-medium" style="color: var(--text-primary);">{{ user.get_full_name }}</p>
+                            <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">{{ user.get_role_display }}</p>
+                        </div>
+                        <i class="bi bi-chevron-down d-none d-lg-block" style="font-size: 12px;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">My Account</h6></li>
+                        <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>Profile Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:change_password' %}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'core:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="page-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h1>Supplier Management</h1>
+                    <p>Manage suppliers, purchase orders, and vendor relationships</p>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'suppliers:order_tracking' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-truck me-2"></i>Track Orders
+                    </a>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                            <i class="bi bi-file-earmark-bar-graph me-2"></i>Reports
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'suppliers:performance_report' %}">
+                                <i class="bi bi-graph-up me-2"></i>Supplier Performance
+                            </a></li>
+                            <li><a class="dropdown-item" href="{% url 'suppliers:purchase_report' %}">
+                                <i class="bi bi-receipt me-2"></i>Purchase Report
+                            </a></li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addPOModal">
+                        <i class="bi bi-file-earmark-plus me-2"></i>Create PO
+                    </button>
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addSupplierModal">
+                        <i class="bi bi-plus-circle me-2"></i>Add Supplier
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+                        <i class="bi bi-building"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ total_suppliers|default:0 }}</div>
+                        <div class="stat-label">Active Suppliers</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ on_time_delivery_rate|default:"0" }}%</div>
+                        <div class="stat-label">On-Time Delivery</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--warning-light); color: var(--warning);">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ pending_orders|default:0 }}</div>
+                        <div class="stat-label">Pending POs</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--info-light); color: var(--info);">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">${{ monthly_spend|floatformat:1|default:"0.0" }}K</div>
+                        <div class="stat-label">Monthly Spend</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+    <div class="card border-0 shadow-sm" style="max-width: 100%; overflow: hidden;">
+    <div class="card-body" style="padding: 1.5rem; overflow: hidden;">
+        <h3 class="card-title mb-4">Suppliers</h3>
+        <div class="table-responsive" style="overflow-x: auto; max-width: 100%;">
+            <table class="table table-hover align-middle" id="supplierTable">
+                <thead class="table-light">
+                    <tr>
+                        <th style="white-space: nowrap;">Supplier ID</th>
+                        <th style="white-space: nowrap;">Name</th>
+                        <th style="white-space: nowrap;">Contact</th>
+                        <th style="white-space: nowrap;">Email</th>
+                        <th style="white-space: nowrap;">Address</th>
+                        <th style="white-space: nowrap;">City</th>
+                        <th style="white-space: nowrap;">Country</th>
+                        <th style="white-space: nowrap;">Tax ID</th>
+                        <th style="white-space: nowrap;">Category</th>
+                        <th style="white-space: nowrap;">Rating</th>
+                        <th style="white-space: nowrap;">Status</th>
+                        <th style="white-space: nowrap;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="suppliersTableBody">
+                    {% if suppliers %}
+                        {% for supplier in suppliers %}
+                        <tr id="supplier-{{ supplier.id }}" 
+                            data-id="{{ supplier.id }}"
+                            data-supplier-id="{{ supplier.supplier_id }}"
+                            data-name="{{ supplier.name }}"
+                            data-contact="{{ supplier.contact_person }}"
+                            data-email="{{ supplier.email }}"
+                            data-phone="{{ supplier.phone }}"
+                            data-address="{{ supplier.address }}"
+                            data-city="{{ supplier.city }}"
+                            data-country="{{ supplier.country }}"
+                            data-tax-id="{{ supplier.tax_id }}"
+                            data-category="{{ supplier.category }}">
+                            <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong>{{ supplier.supplier_id }}</strong></td>
+                            <td style="max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ supplier.name }}</td>
+                            <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ supplier.contact_person }}</td>
+                            <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ supplier.email }}</td>
+                            <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ supplier.address|default:"-"|truncatewords:3 }}</td>
+                            <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ supplier.city|default:"-" }}</td>
+                            <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ supplier.country|default:"-" }}</td>
+                            <td style="max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ supplier.tax_id|default:"-" }}</td>
+                            <td style="max-width: 120px;"><span class="badge bg-light text-dark border">{{ supplier.get_category_display }}</span></td>
+                            <td style="min-width: 130px;">
+                                <select class="form-select form-select-sm rating-dropdown" 
+                                        data-supplier-id="{{ supplier.id }}" 
+                                        onchange="updateSupplierRating(this.dataset.supplierId, this.value)">
+                                    <option value="0" {% if supplier.rating == 0 %}selected{% endif %}>0 - Not Rated</option>
+                                    <option value="1" {% if supplier.rating == 1 %}selected{% endif %}>1 - Poor</option>
+                                    <option value="2" {% if supplier.rating == 2 %}selected{% endif %}>2 - Fair</option>
+                                    <option value="3" {% if supplier.rating == 3 %}selected{% endif %}>3 - Good</option>
+                                    <option value="4" {% if supplier.rating == 4 %}selected{% endif %}>4 - Very Good</option>
+                                    <option value="5" {% if supplier.rating == 5 %}selected{% endif %}>5 - Excellent</option>
+                                </select>
+                            </td>
+                            <td style="min-width: 100px;"><span class="badge bg-success">{{ supplier.get_status_display }}</span></td>
+                            <td style="min-width: 150px; white-space: nowrap;">
+                                <button class="btn btn-sm btn-outline-primary" onclick="editSupplier(this)">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger ms-1" 
+                                        data-supplier-id="{{ supplier.id }}" 
+                                        data-supplier-name="{{ supplier.name }}"
+                                        onclick="deleteSupplier(this.dataset.supplierId, this.dataset.supplierName)">
+                                    <i class="bi bi-trash"></i> Delete
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="12" class="text-center text-muted">No suppliers found</td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addSupplierModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between align-items-center">
+    <h5 class="modal-title fw-bold">Add New Supplier</h5>
+    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+</div>
+            <div class="modal-body">
+               <form id="supplierForm" novalidate>
+                        {% csrf_token %}
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Supplier ID</label>
+            <input type="text" id="suppId" class="form-control bg-light" placeholder="Auto-generated" readonly>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Supplier Name <span class="text-danger">*</span></label>
+            <input type="text" id="suppName" name="name" class="form-control" 
+                   placeholder="Enter supplier name" 
+                   required 
+                   minlength="3"
+                   maxlength="200"
+                   pattern="[A-Za-z\s]+"
+                   title="Supplier name should contain only letters and spaces">
+            <div class="invalid-feedback">Supplier name is required (minimum 3 characters, letters only).</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Category <span class="text-danger">*</span></label>
+            <select id="suppCategory" name="category" class="form-select" required>
+                <option value="" selected disabled>Select category...</option>
+                <option value="raw_materials">Raw Materials</option>
+                <option value="textiles">Textiles</option>
+                <option value="packaging">Packaging</option>
+                <option value="components">Components</option>
+                <option value="equipment">Equipment</option>
+            </select>
+            <div class="invalid-feedback">Please select a category.</div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Contact Person <span class="text-danger">*</span></label>
+            <input type="text" id="suppContact" name="contact_person" class="form-control" 
+                   placeholder="Contact person name" 
+                   required
+                   minlength="3"
+                   maxlength="100"
+                   pattern="[A-Za-z\s]+"
+                   title="Contact person name should contain only letters and spaces">
+            <div class="invalid-feedback">Contact person name is required (minimum 3 characters, letters only).</div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Phone Number <span class="text-danger">*</span></label>
+            <input type="tel" id="suppPhone" name="phone" class="form-control" 
+                   placeholder="e.g. 03001234567 or +923001234567" 
+                   required
+                   pattern="^(\+92|0)?[0-9]{10,11}$"
+                   title="Enter a valid Pakistani phone number (e.g., 03001234567 or +923001234567)">
+            <div class="invalid-feedback">Please enter a valid phone number (10-11 digits).</div>
+        </div>
+    </div>
+    <div class="mb-3">
+        <label class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+        <input type="email" id="suppEmail" name="email" class="form-control" 
+               placeholder="name@example.com" 
+               required
+               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+               title="Enter a valid email address">
+        <div class="invalid-feedback">Please enter a valid email address.</div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Address</label>
+            <textarea id="suppAddress" name="address" class="form-control" rows="2" placeholder="Enter full address"></textarea>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">City</label>
+            <input type="text" id="suppCity" name="city" class="form-control" placeholder="Enter city">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Country</label>
+            <input type="text" id="suppCountry" name="country" class="form-control" placeholder="Enter country">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label fw-bold">Tax ID</label>
+            <input type="text" id="suppTaxId" name="tax_id" class="form-control" placeholder="Enter tax ID">
+        </div>
+    </div>
+    
+    <div class="alert alert-info mb-0">
+        <i class="bi bi-info-circle me-2"></i>
+        <small><strong>Note:</strong> All fields marked with <span class="text-danger">*</span> are required.</small>
+    </div>
+</form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary-custom" onclick="submitSupplier()">Save Supplier</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Purchase Orders -->
+        <div class="card mt-4">
+    <div class="card-body">
+        <h3 class="card-title mb-4">Recent Purchase Orders</h3>
+        <div class="table-responsive" style="overflow: visible !important;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>PO Number</th>
+                        <th>Supplier</th>
+                        <th>Order Date</th>
+                        <th>Expected Delivery</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="poTableBody">
+                    {% if purchase_orders %}
+                        {% for po in purchase_orders %}
+                        <tr id="po-{{ po.id }}" data-current-status="{{ po.status }}">
+                            <td><strong>{{ po.po_number }}</strong></td>
+                            <td>{{ po.supplier.name|default:po.supplier_name|default:"Deleted Supplier" }}</td>
+                            <td>{{ po.order_date|date:"Y-m-d" }}</td>
+                            <td>{{ po.expected_delivery|date:"Y-m-d" }}</td>
+                            <td><span class="text-primary fw-bold">${{ po.total_amount|floatformat:2 }}</span></td>
+                            <td>
+                                <div class="status-badge-dropdown">
+                                    <button class="status-badge-btn status-{{ po.status }}" 
+                                            data-po-id="{{ po.id }}" 
+                                            data-current-status="{{ po.status }}"
+                                            onclick="showStatusOptions(event, this.dataset.poId, this.dataset.currentStatus)">
+                                        {% if po.status == 'pending' %}
+                                            <i class="bi bi-clock-history"></i> Pending
+                                        {% elif po.status == 'received' %}
+                                            <i class="bi bi-check-circle-fill"></i> Received
+                                        {% elif po.status == 'cancelled' %}
+                                            <i class="bi bi-x-circle-fill"></i> Cancelled
+                                        {% else %}
+                                            <i class="bi bi-circle"></i> {{ po.get_status_display }}
+                                        {% endif %}
+                                        <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
+                                    </button>
+                                    <div class="status-options-menu" id="statusMenu-{{ po.id }}" style="display: none;">
+                                        <div class="status-option" data-po-id="{{ po.id }}" data-status="pending" onclick="updatePOStatus(this.dataset.poId, this.dataset.status)">
+                                            <i class="bi bi-clock-history"></i> Pending
+                                        </div>
+                                        <div class="status-option" data-po-id="{{ po.id }}" data-status="received" onclick="updatePOStatus(this.dataset.poId, this.dataset.status)">
+                                            <i class="bi bi-check-circle-fill"></i> Received
+                                        </div>
+                                        <div class="status-option" data-po-id="{{ po.id }}" data-status="cancelled" onclick="updatePOStatus(this.dataset.poId, this.dataset.status)">
+                                            <i class="bi bi-x-circle-fill"></i> Cancelled
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-po-id="{{ po.id }}" onclick="viewPO(this.dataset.poId)">
+                                    <i class="bi bi-eye"></i> View
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted">No purchase orders found</td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<!-- Purchase Orders Form -->
+<div class="modal fade" id="addPOModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between align-items-center">
+    <h5 class="modal-title fw-bold">Create Purchase Order</h5>
+    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+</div>
+            <div class="modal-body">
+                <form id="poFormMain">
+                        {% csrf_token %}
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <label class="form-label">PO Number</label>
+                            <input type="text" id="poNum" class="form-control" placeholder="Auto-generated" readonly>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Order Date</label>
+                            <input type="date" id="poDate" name="order_date" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Supplier</label>
+                            <select id="poSupplier" name="supplier_id" class="form-select" required>
+                                <option value="">Select supplier...</option>
+                                {% for supplier in suppliers %}
+                                <option value="{{ supplier.id }}">{{ supplier.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <label class="form-label">Expected Delivery Date</label>
+                            <input type="date" id="poExpectedDelivery" name="expected_delivery" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <h6>Order Items</h6>
+                        <button type="button" class="btn btn-primary btn-sm" onclick="addNewItemRow()">
+                            <i class="bi bi-plus"></i> Add Item
+                        </button>
+                    </div>
+
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Item Name</th>
+                                <th width="150">Quantity</th>
+                                <th width="150">Unit Price ($)</th>
+                                <th width="150">Total ($)</th>
+                                <th width="50">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsList">
+                            </tbody>
+                    </table>
+
+                    <div class="row justify-content-end">
+                        <div class="col-md-4 border p-3 bg-light rounded">
+                            <div class="d-flex justify-content-between">
+                                <strong>Grand Total:</strong>
+                                <span id="finalTotal" class="fw-bold text-primary">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary-custom" onclick="submitPurchaseOrder()">Save Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ===== CSRF TOKEN FUNCTION =====
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+// ===== END CSRF TOKEN =====
+
+// ===== UPDATE SUPPLIER RATING =====
+function updateSupplierRating(supplierId, rating) {
+    fetch(`/suppliers/api/suppliers/${supplierId}/update-rating/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': csrftoken
+        },
+        body: `rating=${rating}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            alert('Supplier rating updated successfully!');
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update rating');
+    });
+}
+// ===== END UPDATE SUPPLIER RATING =====
+
+// ===== USER IS NOT DEFINED FIX =====
+// Ye variable define karo taake error na aye
+var user = {
+    id: "{{ user.id|default:'' }}",
+    username: "{{ user.username|default:'' }}",
+    full_name: "{{ user.get_full_name|default:''|escapejs }}",
+    email: "{{ user.email|default:''|escapejs }}",
+    role: "{{ user.role|default:'' }}",
+    is_authenticated: {{ user.is_authenticated|yesno:"true,false" }}
+};
+// ===== END FIX =====
+
+// Form submission handlers(Supplier Dashbaord)
+//PO MODAL FORM------------------------>
+let editRow = null; // Isme hum wo row track karenge jise edit karna hai
+
+// 1. Nayi row add karne ka function (Modal ke andar)
+function addNewItemRow(itemName = "", qty = 1, price = 0) {
+    const tbody = document.getElementById('itemsList');
+    const row = document.createElement('tr');
+    const total = (qty * price).toFixed(2);
+    
+    row.innerHTML = `
+        <td><input type="text" class="form-control form-control-sm item-name" placeholder="Enter item" value="${itemName}"></td>
+        <td><input type="number" class="form-control form-control-sm qty" value="${qty}" oninput="calcRow(this)"></td>
+        <td><input type="number" class="form-control form-control-sm price" value="${price}" oninput="calcRow(this)"></td>
+        <td class="row-total text-end fw-bold">$${total}</td>
+        <td><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); updateFinalTotal();">×</button></td>
+    `;
+    tbody.appendChild(row);
+    updateFinalTotal();
+}
+
+// 2. Row Calculation (Qty * Price)
+function calcRow(input) {
+    const row = input.closest('tr');
+    const qty = parseFloat(row.querySelector('.qty').value) || 0;
+    const price = parseFloat(row.querySelector('.price').value) || 0;
+    const total = qty * price;
+    row.querySelector('.row-total').innerText = '$' + total.toFixed(2);
+    updateFinalTotal();
+}
+
+// 3. Grand Total Calculation
+function updateFinalTotal() {
+    let grand = 0;
+    document.querySelectorAll('.row-total').forEach(td => {
+        grand += parseFloat(td.innerText.replace('$', '')) || 0;
+    });
+    document.getElementById('finalTotal').innerText = '$' + grand.toFixed(2);
+}
+
+// 4. Submit ya Update karne ka function
+function submitToTable() {
+    // This function is deprecated - use submitPurchaseOrder instead
+    submitPurchaseOrder();
+}
+
+// New function to submit PO to backend
+function submitPurchaseOrder() {
+    const form = document.getElementById('poFormMain');
+    
+    // Get form data
+    const supplier_id = document.getElementById('poSupplier').value;
+    const order_date = document.getElementById('poDate').value;
+    const expected_delivery = document.getElementById('poExpectedDelivery').value;
+    
+    // Validate required fields
+    if (!supplier_id || !order_date || !expected_delivery) {
+        alert('Please fill in all required fields');
+        return;
+    }
+    
+    // Get items from table
+    const items = [];
+    document.querySelectorAll('#itemsList tr').forEach(row => {
+        const item_name = row.querySelector('.item-name').value;
+        const quantity = row.querySelector('.qty').value;
+        const unit_price = row.querySelector('.price').value;
+        
+        if (item_name && quantity && unit_price) {
+            items.push({
+                item_name: item_name,
+                quantity: parseInt(quantity),
+                unit_price: parseFloat(unit_price)
+            });
+        }
+    });
+    
+    if (items.length === 0) {
+        alert('Please add at least one item');
+        return;
+    }
+    
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('supplier_id', supplier_id);
+    formData.append('order_date', order_date);
+    formData.append('expected_delivery', expected_delivery);
+    formData.append('items', JSON.stringify(items));
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    // Submit to backend
+    fetch('{% url "suppliers:create_purchase_order_api" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Purchase order created successfully!');
+            window.location.reload(); // Reload to show new PO
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while creating the purchase order');
+    });
+}
+
+// 5. Edit Button click hone par data load karna
+function editPO(btn) {
+    editRow = btn.closest('tr'); // Current row ko save karlo
+    
+    // Table se data nikalna
+    const poVal = editRow.cells[0].innerText;
+    const suppVal = editRow.cells[1].innerText;
+    const dateVal = editRow.cells[2].innerText;
+
+    // Modal mein data bharna
+    document.getElementById('poNum').value = poVal;
+    document.getElementById('poSupplier').value = suppVal;
+    document.getElementById('poDate').value = dateVal;
+
+    // Items load karne ke liye logic (Sample: Clear old items first)
+    document.getElementById('itemsList').innerHTML = '';
+    // Note: Yahan real app mein database se items aate hain, 
+    // filhal hum 1 empty row add kar rahe hain editing ke liye
+    addNewItemRow("Edited Item", 1, parseFloat(editRow.cells[4].innerText.replace('$', '')));
+
+    // Modal open karna
+    const modal = new bootstrap.Modal(document.getElementById('addPOModal'));
+    modal.show();
+}
+
+function closeAndResetModal() {
+    const modalEl = document.getElementById('addPOModal');
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    if (modalInstance) modalInstance.hide();
+    
+    document.getElementById('poFormMain').reset();
+    document.getElementById('itemsList').innerHTML = '';
+    document.getElementById('finalTotal').innerText = '$0.00';
+    editRow = null;
+    addNewItemRow();
+}
+
+// Load initial row
+window.onload = () => addNewItemRow();
+ 
+
+//Add Supplier Logic------------------------------------>
+let editSupplierRow = null;
+
+function submitSupplier() {
+    const form = document.getElementById('supplierForm');
+    
+    // Remove previous validation
+    form.classList.remove('was-validated');
+    
+    // Get form values
+    const name = document.getElementById('suppName').value.trim();
+    const category = document.getElementById('suppCategory').value;
+    const contact = document.getElementById('suppContact').value.trim();
+    const phone = document.getElementById('suppPhone').value.trim();
+    const email = document.getElementById('suppEmail').value.trim();
+    
+    // Custom validation checks
+    let isValid = true;
+    let errorMessage = '';
+    
+    // Validate supplier name
+    if (name.length < 3) {
+        errorMessage = 'Supplier name must be at least 3 characters long.';
+        isValid = false;
+    } else if (!/^[A-Za-z\s]+$/.test(name)) {
+        errorMessage = 'Supplier name should contain only letters and spaces.';
+        isValid = false;
+    }
+    
+    // Validate category
+    if (!category) {
+        errorMessage = 'Please select a category.';
+        isValid = false;
+    }
+    
+    // Validate contact person
+    if (contact.length < 3) {
+        errorMessage = 'Contact person name must be at least 3 characters long.';
+        isValid = false;
+    } else if (!/^[A-Za-z\s]+$/.test(contact)) {
+        errorMessage = 'Contact person name should contain only letters and spaces.';
+        isValid = false;
+    }
+    
+    // Validate phone number
+    const phoneRegex = /^(\+92|0)?[0-9]{10,11}$/;
+    if (!phoneRegex.test(phone)) {
+        errorMessage = 'Please enter a valid Pakistani phone number (e.g., 03001234567 or +923001234567).';
+        isValid = false;
+    }
+    
+    // Validate email
+    const emailRegex = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+    if (!emailRegex.test(email)) {
+        errorMessage = 'Please enter a valid email address.';
+        isValid = false;
+    }
+    
+    // If validation fails, show error and mark form as validated
+    if (!isValid) {
+        form.classList.add('was-validated');
+        showValidationAlert('danger', errorMessage);
+        return;
+    }
+    
+    // HTML5 validation check
+    if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        showValidationAlert('danger', 'Please fill in all required fields correctly.');
+        return;
+    }
+    
+    // Disable submit button to prevent double submission
+    const submitBtn = event.target;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+    
+    // Collect form data
+    const formData = new FormData(form);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    // Submit to backend
+    fetch('{% url "suppliers:add_supplier_api" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showValidationAlert('success', 'Supplier added successfully!');
+            setTimeout(() => {
+                window.location.reload(); // Reload to show new supplier
+            }, 1500);
+        } else {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Save Supplier';
+            showValidationAlert('danger', 'Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Save Supplier';
+        showValidationAlert('danger', 'An error occurred while adding the supplier. Please try again.');
+    });
+}
+
+function showValidationAlert(type, message) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+    alertDiv.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 350px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    alertDiv.innerHTML = `
+        <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(alertDiv);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+
+// Add real-time validation feedback
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('supplierForm');
+    if (form) {
+        // Add input event listeners for real-time validation
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (form.classList.contains('was-validated')) {
+                    this.checkValidity();
+                }
+            });
+            
+            input.addEventListener('input', function() {
+                if (form.classList.contains('was-validated')) {
+                    this.checkValidity();
+                }
+            });
+        });
+    }
+});
+
+
+// Load notifications
+function loadNotifications() {
+    fetch('/suppliers/api/notifications/')
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                const badge = document.getElementById('notificationBadge');
+                const header = document.getElementById('notificationHeader');
+                const list = document.getElementById('notificationsList');
+                
+                // Update count
+                const count = data.count;
+                header.textContent = `Notifications (${count})`;
+                
+                // Show/hide badge
+                if (count > 0) {
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+                
+                // Update notifications list
+                if (count === 0) {
+                    list.innerHTML = `
+                        <div class="notification-item">
+                            <div class="notification-content">
+                                <div class="notification-details">
+                                    <div class="notification-message text-center text-muted">No new notifications</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    list.innerHTML = data.notifications.map(n => {
+                        const iconClass = n.type === 'danger' ? 'danger' : n.type === 'success' ? 'success' : 'info';
+                        const icon = n.type === 'danger' ? 'exclamation-triangle-fill' : 
+                                   n.type === 'success' ? 'check-circle-fill' : 'info-circle-fill';
+                        
+                        return `
+                            <div class="notification-item">
+                                <div class="notification-content">
+                                    <div class="notification-icon ${iconClass}">
+                                        <i class="bi bi-${icon}"></i>
+                                    </div>
+                                    <div class="notification-details">
+                                        <div class="notification-title">${n.title}</div>
+                                        <div class="notification-message">${n.message}</div>
+                                        <div class="notification-time">${n.time_ago}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                        `;
+                    }).join('');
+                }
+            }
+        })
+        .catch(err => console.error('Error loading notifications:', err));
+}
+
+// Load notifications on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotifications();
+    // Refresh notifications every 30 seconds
+    setInterval(loadNotifications, 30000);
+});
+
+window.editSupplier = function(btn) {
+    console.log('editSupplier called');
+    const row = btn.closest('tr');
+    
+    // Get data from data attributes
+    const supplierId = row.dataset.supplierId;
+    const name = row.dataset.name;
+    const contact = row.dataset.contact;
+    const email = row.dataset.email;
+    const phone = row.dataset.phone;
+    const category = row.dataset.category;
+
+    console.log('Editing supplier:', supplierId);
+
+    // Load into form
+    document.getElementById('suppId').value = supplierId;
+    document.getElementById('suppName').value = name;
+    document.getElementById('suppContact').value = contact;
+    document.getElementById('suppEmail').value = email;
+    document.getElementById('suppPhone').value = phone;
+    document.getElementById('suppCategory').value = category;
+
+    // Change modal title
+    const modalTitle = document.querySelector('#addSupplierModal .modal-title');
+    if (modalTitle) {
+        modalTitle.innerText = "Edit Supplier Details";
+    }
+
+    // Open modal
+    const modal = new bootstrap.Modal(document.getElementById('addSupplierModal'));
+    modal.show();
+};
+
+function confirmDelete(btn) {
+    if (confirm("Are you sure you want to delete?")) {
+        btn.closest('tr').remove();
+    }
+}
+
+// View Purchase Order function
+window.viewPO = function(poId) {
+    console.log('viewPO called with ID:', poId);
+    // For now, just show an alert with PO details
+    alert('View PO details for ID: ' + poId + '\n\nThis feature will show full purchase order details including all items.');
+    
+    // TODO: Implement full PO details modal
+    // You can fetch PO details via AJAX and display in a modal
+};
+
+// Update Purchase Order Status
+window.updatePOStatus = function(poId, newStatus) {
+    console.log('Updating PO', poId, 'to status:', newStatus);
+    
+    // Hide the menu
+    const menu = document.getElementById(`statusMenu-${poId}`);
+    if (menu) {
+        menu.style.display = 'none';
+    }
+    
+    // Confirm status change
+    const statusLabels = {
+        'pending': 'Pending',
+        'received': 'Received',
+        'cancelled': 'Cancelled (Will be deleted)'
+    };
+    
+    let confirmMessage = `Are you sure you want to change the status to "${statusLabels[newStatus]}"?`;
+    if (newStatus === 'cancelled') {
+        confirmMessage = `⚠️ WARNING: This will PERMANENTLY DELETE the purchase order!\n\nAre you sure you want to cancel and delete PO?`;
+    }
+    
+    if (!confirm(confirmMessage)) {
+        return;
+    }
+    
+    // Prepare form data
+    const formData = new FormData();
+    formData.append('status', newStatus);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+    
+    // Submit to backend
+    fetch(`/suppliers/api/purchase-orders/${poId}/update-status/`, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // If deleted, remove row from table
+            if (data.deleted) {
+                const row = document.getElementById(`po-${poId}`);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(-20px)';
+                    
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        // Check if table is empty
+                        const tbody = document.getElementById('poTableBody');
+                        if (tbody && tbody.children.length === 0) {
+                            tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No purchase orders found</td></tr>';
+                        }
+                    }, 300);
+                }
+                
+                alert('✓ ' + data.message + '\n\nPurchase order has been permanently deleted from the database.');
+            } else {
+                alert('✓ ' + data.message);
+                location.reload();
+            }
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating the status');
+    });
+};
+
+// Show status options menu
+window.showStatusOptions = function(event, poId, currentStatus) {
+    event.stopPropagation();
+    
+    // Remove dropdown-active class from all rows
+    document.querySelectorAll('.table tbody tr').forEach(row => {
+        row.classList.remove('dropdown-active');
+    });
+    
+    // Hide all other menus
+    document.querySelectorAll('.status-options-menu').forEach(menu => {
+        menu.style.display = 'none';
+    });
+    
+    // Toggle current menu
+    const menu = document.getElementById(`statusMenu-${poId}`);
+    const row = document.getElementById(`po-${poId}`);
+    
+    if (menu) {
+        const isVisible = menu.style.display === 'block';
+        menu.style.display = isVisible ? 'none' : 'block';
+        
+        // Add dropdown-active class to current row if opening
+        if (!isVisible && row) {
+            row.classList.add('dropdown-active');
+        }
+    }
+};
+
+// Close status menus when clicking outside
+document.addEventListener('click', function(event) {
+    if (!event.target.closest('.status-badge-dropdown')) {
+        document.querySelectorAll('.status-options-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+        // Remove dropdown-active class from all rows
+        document.querySelectorAll('.table tbody tr').forEach(row => {
+            row.classList.remove('dropdown-active');
+        });
+    }
+});
+
+// Real-time status update polling
+let lastUpdateTime = new Date().getTime();
+
+// Track which status updates have been shown to prevent duplicate notifications
+const shownNotifications = new Map();
+
+function checkForStatusUpdates() {
+    // Don't update if any status dropdown is open
+    const anyMenuOpen = Array.from(document.querySelectorAll('.status-options-menu')).some(menu => menu.style.display === 'block');
+    if (anyMenuOpen) {
+        console.log('Skipping update - dropdown is open');
+        return;
+    }
+    
+    fetch('/suppliers/api/purchase-orders/status-updates/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success && data.orders) {
+            // Update each order's status in the table
+            data.orders.forEach(order => {
+                updateOrderRowStatus(order.id, order.status, order.status_display);
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error checking for updates:', error);
+    });
+}
+
+function updateOrderRowStatus(orderId, newStatus, statusDisplay) {
+    const row = document.getElementById(`po-${orderId}`);
+    if (!row) return;
+    
+    const statusCell = row.querySelector('.status-badge-btn');
+    if (!statusCell) return;
+    
+    // Don't update if this row's dropdown is open
+    const menu = document.getElementById(`statusMenu-${orderId}`);
+    if (menu && menu.style.display === 'block') {
+        return;
+    }
+    
+    // Get the current status from the row's data attribute
+    const currentStatus = row.getAttribute('data-current-status');
+    
+    // Check if status actually changed
+    const statusChanged = currentStatus !== newStatus;
+    
+    // Only update if status actually changed
+    if (!statusChanged) return;
+    
+    // Update the status badge
+    let iconClass = 'bi-circle';
+    let statusClass = `status-${newStatus}`;
+    
+    if (newStatus === 'pending') {
+        iconClass = 'bi-clock-history';
+        statusDisplay = 'Pending';
+    } else if (newStatus === 'received') {
+        iconClass = 'bi-check-circle-fill';
+        statusDisplay = 'Received';
+    } else if (newStatus === 'sent') {
+        iconClass = 'bi-truck';
+        statusDisplay = 'In Transit';
+    } else if (newStatus === 'cancelled') {
+        iconClass = 'bi-x-circle-fill';
+        statusDisplay = 'Cancelled';
+    }
+    
+    // Update button class and content
+    statusCell.className = `status-badge-btn ${statusClass}`;
+    statusCell.innerHTML = `
+        <i class="bi ${iconClass}"></i> ${statusDisplay}
+        <i class="bi bi-chevron-down ms-1" style="font-size: 10px;"></i>
+    `;
+    
+    // Update the onclick handler
+    statusCell.setAttribute('onclick', `showStatusOptions(event, '${orderId}', '${newStatus}')`);
+    statusCell.setAttribute('data-po-id', orderId);
+    statusCell.setAttribute('data-current-status', newStatus);
+    
+    // Store the new status in the row's data attribute
+    row.setAttribute('data-current-status', newStatus);
+    
+    // Show notification for status change
+    const notificationKey = `${orderId}-${newStatus}`;
+    if (!shownNotifications.has(notificationKey)) {
+        shownNotifications.set(notificationKey, true);
+        showUpdateNotification(`Order ${row.querySelector('strong').textContent} status updated to ${statusDisplay}`);
+    }
+}
+
+function showUpdateNotification(message) {
+    // Create a small toast notification
+    const toast = document.createElement('div');
+    toast.className = 'alert alert-info alert-dismissible fade show position-fixed';
+    toast.style.cssText = 'top: 80px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);';
+    toast.innerHTML = `
+        <i class="bi bi-info-circle me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(toast);
+    
+    // Auto remove after 4 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 4000);
+}
+
+// Start polling for updates every 5 seconds
+// setInterval(checkForStatusUpdates, 5000); // DISABLED
+
+// Also check immediately on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // setTimeout(checkForStatusUpdates, 2000); // DISABLED // Check after 2 seconds
+});
+
+// ==================== DELETE SUPPLIER ====================
+function deleteSupplier(supplierId, supplierName) {
+    // Confirm deletion
+    if (!confirm(`Are you sure you want to delete supplier "${supplierName}"?\n\nThis action cannot be undone. The supplier will be permanently removed from the database.`)) {
+        return;
+    }
+    
+    // Show loading state
+    const row = document.getElementById(`supplier-${supplierId}`);
+    if (row) {
+        row.style.opacity = '0.5';
+    }
+    
+    fetch(`/suppliers/api/suppliers/${supplierId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show success message
+            alert(`✓ Success: ${data.message}`);
+            
+            // Remove row from table with animation
+            if (row) {
+                row.style.transition = 'all 0.3s ease';
+                row.style.opacity = '0';
+                row.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    row.remove();
+                    
+                    // Check if table is empty
+                    const tbody = document.getElementById('suppliersTableBody');
+                    if (tbody && tbody.children.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted">No suppliers found</td></tr>';
+                    }
+                }, 300);
+            }
+        } else {
+            // Show error message
+            alert('Error: ' + data.message);
+            
+            // Restore row opacity
+            if (row) {
+                row.style.opacity = '1';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the supplier');
+        
+        // Restore row opacity
+        if (row) {
+            row.style.opacity = '1';
+        }
+    });
+}
+
+
+</script>
+
+
+   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'main.js' %}"></script>
+</body>
+</html>

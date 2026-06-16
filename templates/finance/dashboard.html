@@ -1,0 +1,903 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beamy Sports - Finance & Accounting</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        #topbar {
+    height: 70px;               /* Matches the sidebar logo-section height */
+    background: white;
+    border-bottom: 1px solid var(--gray-200); /* Same line color as sidebar */
+    padding: 0 30px;           /* Standardized padding */
+    display: flex;
+    align-items: center;       /* Centers content so the line stays straight */
+    margin-bottom: 0;          /* Removes any gap */
+}
+
+/* Fixes the breadcrumb alignment inside the topbar */
+
+
+/* Ensures the sidebar line and topbar line are at the same Y-axis */
+.logo-section {
+    height: 70px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+/* Status Badge Styling */
+.status-badge {
+    border: none;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.status-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.status-badge i {
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+/* Draft - Gray */
+.status-draft {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.status-draft:hover {
+    background-color: #e5e7eb;
+    color: #4b5563;
+}
+
+/* Sent - Blue */
+.status-sent {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.status-sent:hover {
+    background-color: #bfdbfe;
+    color: #1e3a8a;
+}
+
+/* Paid - Green */
+.status-paid {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-paid:hover {
+    background-color: #a7f3d0;
+    color: #064e3b;
+}
+
+/* Overdue - Orange/Red */
+.status-overdue {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-overdue:hover {
+    background-color: #fecaca;
+    color: #7f1d1d;
+}
+
+/* Cancelled - Dark Gray */
+.status-cancelled {
+    background-color: #e5e7eb;
+    color: #374151;
+}
+
+.status-cancelled:hover {
+    background-color: #d1d5db;
+    color: #1f2937;
+}
+
+/* Dropdown menu styling */
+.status-option {
+    font-size: 13px;
+    padding: 8px 16px;
+}
+
+.status-option:hover {
+    background-color: #f3f4f6;
+}
+
+.status-option i {
+    opacity: 0.7;
+}
+
+/* Ensure dropdown is visible */
+.dropdown-menu {
+    z-index: 99999 !important;
+    min-width: 150px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    position: absolute !important;
+}
+
+/* Invoice table scrollable container */
+.table-responsive {
+    position: relative;
+}
+
+.table-responsive:has(.dropdown.show) {
+    overflow: visible !important;
+}
+
+/* Add z-index to active dropdown row */
+tbody tr {
+    position: relative;
+}
+
+tbody tr.dropdown-active {
+    z-index: 1000;
+    position: relative;
+}
+
+/* Ensure dropdown container has proper positioning */
+.dropdown {
+    position: relative;
+}
+
+/* Remove excessive padding */
+#main-content {
+    padding-bottom: 24px;
+}
+
+/* Sticky table header for scrollable invoice list */
+.table-responsive thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 10;
+    box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Empty state styling */
+.table tbody tr td i.bi-inbox,
+.table tbody tr td i.bi-receipt {
+    opacity: 0.3;
+}
+
+
+
+    </style>
+    
+</head>
+<body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="logo-section">
+            <div class="logo-text">
+                <h1>Beamy Sports</h1>
+                <p>ERP System</p>
+            </div>
+            <button class="btn" id="toggleSidebar">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="nav-section">
+            
+            <a href="{% url 'finance:dashboard' %}" class="nav-item active" data-module="FinanceModule">
+                <i class="bi bi-currency-dollar"></i>
+                <span>Finance</span>
+            </a>
+            
+            {% if user.role == 'admin' %}
+            <a href="{% url 'core:ai_insights' %}" class="nav-item" data-module="ai-insights">
+                <i class="bi bi-lightbulb-fill"></i>
+                <span>AI Insights</span>
+            </a>
+            {% endif %}
+            
+        </div>
+
+        <div class="sidebar-bottom">
+            <a href="{% url 'core:help' %}" class="nav-item" data-module="help">
+                <i class="bi bi-question-circle"></i>
+                <span>Help</span>
+            </a>
+            <a href="{% url 'core:logout' %}" class="nav-item">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div id="topbar">
+        <div class="d-flex align-items-center justify-content-between h-100">
+            <!-- Left: Mobile Menu + Breadcrumbs -->
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn d-md-none" id="mobileMenuToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Finance</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Right: Search, Notifications, User -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Search -->
+                <button class="btn d-none d-md-flex" data-bs-toggle="modal" data-bs-target="#searchModal">
+                    <i class="bi bi-search"></i>
+                </button>
+
+               <!-- Notifications Dropdown -->
+<div class="dropdown notification-dropdown">
+    <button class="btn position-relative" id="notificationDropdown" data-bs-toggle="dropdown" data-dropdown="notifications">
+        <i class="bi bi-bell"></i>
+        {% if unread_notification_count > 0 %}
+        <span class="notification-badge">{{ unread_notification_count }}</span>
+        {% else %}
+        <span class="notification-badge" style="display: none;"></span>
+        {% endif %}
+    </button>
+    
+    <!-- Backdrop overlay -->
+    <div class="dropdown-backdrop" id="notificationBackdrop"></div>
+    
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" data-dropdown="notifications" aria-labelledby="notificationDropdown">
+        <button class="dropdown-close-btn" onclick="closeNotificationDropdown()">
+            <i class="bi bi-x"></i>
+        </button>
+        
+        <h6 class="dropdown-header">Notifications ({{ unread_notification_count }})</h6>
+        <div class="dropdown-divider"></div>
+        
+        {% if notifications %}
+            {% for notification in notifications %}
+            <div class="notification-item">
+                <div class="notification-content">
+                    <div class="notification-details">
+                        <div class="notification-title">{{ notification.title }}</div>
+                        <div class="notification-message">{{ notification.message }}</div>
+                        <div class="notification-time">{{ notification.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="notification-item">
+            <div class="notification-content">
+                <div class="notification-details">
+                    <div class="notification-message text-center text-muted">No new notifications</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="dropdown-divider"></div>
+        <a href="#" class="dropdown-item text-center small fw-medium">View all notifications</a>
+    </div>
+</div>
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <div class="user-avatar">
+                            JS
+                        </div>
+                        <div class="text-start d-none d-lg-block">
+                            <p class="mb-0 small fw-medium" style="color: var(--text-primary);">{{ user.get_full_name }}</p>
+                            <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">{{ user.get_role_display }}</p>
+                        </div>
+                        <i class="bi bi-chevron-down d-none d-lg-block" style="font-size: 12px;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">My Account</h6></li>
+                        <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>Profile Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:change_password' %}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'core:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="page-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h1>Finance & Accounting</h1>
+                    <p>Manage invoices, expenses, revenue, and financial reports</p>
+                </div>
+                <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#createInvoiceModal">
+                    <i class="bi bi-plus-circle me-2"></i>Create Invoice
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <p class="kpi-label">Total Revenue</p>
+                        <div class="kpi-value" id="totalRevenueValue">PKR {{ total_revenue|floatformat:0 }}K</div>
+                        <div class="kpi-change" id="totalRevenueChange">
+                            {% if revenue_change >= 0 %}
+                            <span class="text-success">↑ {{ revenue_change_abs }}%</span>
+                            {% else %}
+                            <span class="text-danger">↓ {{ revenue_change_abs }}%</span>
+                            {% endif %}
+                            <span style="color: var(--text-muted);">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <p class="kpi-label">Total Expenses</p>
+                        <div class="kpi-value" id="totalExpensesValue">PKR {{ total_expenses|floatformat:0 }}K</div>
+                        <div class="kpi-change" id="totalExpensesChange">
+                            {% if expense_change >= 0 %}
+                            <span class="text-danger">↑ {{ expense_change_abs }}%</span>
+                            {% else %}
+                            <span class="text-success">↓ {{ expense_change_abs }}%</span>
+                            {% endif %}
+                            <span style="color: var(--text-muted);">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <p class="kpi-label">Net Profit</p>
+                        <div class="kpi-value" id="netProfitValue">PKR {{ net_profit|floatformat:0 }}K</div>
+                        <div class="kpi-change" id="netProfitChange">
+                            {% if profit_change >= 0 %}
+                            <span class="text-success">↑ {{ profit_change_abs }}%</span>
+                            {% else %}
+                            <span class="text-danger">↓ {{ profit_change_abs }}%</span>
+                            {% endif %}
+                            <span style="color: var(--text-muted);">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <p class="kpi-label">Pending Invoices</p>
+                        <div class="kpi-value" id="pendingInvoicesValue">{{ pending_invoices_count }}</div>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;" id="pendingInvoicesExtra">PKR {{ pending_invoices_amount|floatformat:0|default:"0" }} outstanding</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoices Table-->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+        <h5 class="mb-0 fw-bold">Invoices List</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer</th>
+                        <th>Date</th>
+                        <th>Total Amount</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="invoicesTableBody">
+                    {% if recent_invoices %}
+                        {% for invoice in recent_invoices %}
+                        <tr data-invoice-id="{{ invoice.id }}">
+                            <td style="padding: 12px;">{{ invoice.invoice_number }}</td>
+                            <td style="padding: 12px;">{{ invoice.customer_name }}</td>
+                            <td style="padding: 12px;">{{ invoice.invoice_date|date:"M d, Y" }}</td>
+                            <td style="padding: 12px;">PKR {{ invoice.total_amount|floatformat:0 }}</td>
+                            <td style="padding: 12px;">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm dropdown-toggle status-badge status-{{ invoice.status }}" type="button" data-bs-toggle="dropdown" data-bs-auto-close="true" aria-expanded="false" data-invoice-id="{{ invoice.id }}" data-current-status="{{ invoice.status }}">
+                                        {% if invoice.status == 'draft' %}
+                                            <i class="bi bi-file-earmark"></i> Draft
+                                        {% elif invoice.status == 'sent' %}
+                                            <i class="bi bi-send"></i> Sent
+                                        {% elif invoice.status == 'paid' %}
+                                            <i class="bi bi-check-circle-fill"></i> Paid
+                                        {% elif invoice.status == 'overdue' %}
+                                            <i class="bi bi-exclamation-triangle-fill"></i> Overdue
+                                        {% elif invoice.status == 'cancelled' %}
+                                            <i class="bi bi-x-circle-fill"></i> Cancelled
+                                        {% endif %}
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li><a class="dropdown-item status-option" href="#" data-status="draft" data-invoice-id="{{ invoice.id }}"><i class="bi bi-file-earmark me-2"></i>Draft</a></li>
+                                        <li><a class="dropdown-item status-option" href="#" data-status="sent" data-invoice-id="{{ invoice.id }}"><i class="bi bi-send me-2"></i>Sent</a></li>
+                                        <li><a class="dropdown-item status-option" href="#" data-status="paid" data-invoice-id="{{ invoice.id }}"><i class="bi bi-check-circle-fill me-2"></i>Paid</a></li>
+                                        <li><a class="dropdown-item status-option" href="#" data-status="overdue" data-invoice-id="{{ invoice.id }}"><i class="bi bi-exclamation-triangle-fill me-2"></i>Overdue</a></li>
+                                        <li><a class="dropdown-item status-option" href="#" data-status="cancelled" data-invoice-id="{{ invoice.id }}"><i class="bi bi-x-circle-fill me-2"></i>Cancelled</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                            <td class="text-center" style="padding: 12px;">
+                                <button class="btn btn-sm btn-outline-danger generate-pdf-btn" data-invoice-id="{{ invoice.id }}" title="Generate PDF">
+                                    <i class="bi bi-file-pdf"></i> PDF
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-5">
+                                <i class="bi bi-inbox" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 12px;"></i>
+                                <p class="mb-0">No invoices found</p>
+                                <small class="text-muted">Create your first invoice to get started</small>
+                            </td>
+                        </tr>
+                    {% endif %}
+                    </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createInvoiceModal" tabindex="-1" aria-labelledby="createInvoiceModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            
+           <div class="modal-header d-flex justify-content-between align-items-center">
+    <h5 class="modal-title fw-bold" id="createInvoiceModalLabel">Invoice Details</h5>
+    <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+</div>
+
+            <div class="modal-body">
+                <form id="invoiceForm">
+                        {% csrf_token %}
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Invoice ID</label>
+                            <input type="text" id="formInvoiceID" class="form-control" placeholder="INV-001" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Customer</label>
+                            <select id="customer" class="form-select" required>
+                                <option value="">Loading customers...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="small fw-bold">Date</label>
+                            <input type="date" id="invoiceDate" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <table class="table table-sm border">
+                        <thead class="bg-light">
+                            <tr class="small">
+                                <th>Description</th>
+                                <th style="width: 80px;">Qty</th>
+                                <th style="width: 120px;">Price</th>
+                                <th style="width: 100px;">Total</th>
+                                <th style="width: 40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalItemsBody">
+                            <tr>
+                                <td><input type="text" class="form-control form-control-sm item-desc" required></td>
+                                <td><input type="number" class="form-control form-control-sm item-qty" value="1" min="1"></td>
+                                <td><input type="number" class="form-control form-control-sm item-price" placeholder="0" required></td>
+                                <td class="row-total small fw-bold pt-2">0.00</td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="addNewItemRowBtn">
+                        <i class="bi bi-plus"></i> Add Item Row
+                    </button>
+
+                    <div class="mt-3 text-end">
+                        <div class="fw-bold text-primary fs-5">Grand Total: PKR <span id="grandTotalDisplay">0.00</span></div>
+                    </div>
+                </form>
+            </div> <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="saveInvoiceBtn" class="btn btn-primary-custom">Generate Invoice</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+        <!-- Recent Expenses (Payroll Details) -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="card-title mb-0">Recent Expenses</h3>
+                    <a href="{% url 'hr:dashboard' %}" class="btn btn-sm btn-outline-primary-custom">View Payroll Details</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Description</th>
+                                        <th>Category</th>
+                                        <th>Date</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% if recent_expenses %}
+                                        {% for exp in recent_expenses %}
+                                        <tr>
+                                            <td>
+                                                <strong>{{ exp.description }}</strong>
+                                                {% if exp.category == 'Payroll' %}
+                                                <br><small class="text-muted">Employee Salary Payment</small>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">{{ exp.category }}</span>
+                                            </td>
+                                            <td>{{ exp.expense_date|date:"M d, Y" }}</td>
+                                            <td class="text-end">
+                                                <span class="fw-medium text-danger">PKR {{ exp.amount|floatformat:0 }}</span>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted py-5">
+                                                <i class="bi bi-receipt" style="font-size: 48px; color: #ccc; display: block; margin-bottom: 12px;"></i>
+                                                <p class="mb-0">No recent expenses</p>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+        <!-- Financial Report -->
+        <div class="card mb-4">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-file-earmark-bar-graph" style="font-size: 48px; color: var(--primary); margin-bottom: 16px;"></i>
+                <h3 class="mb-3">Financial Report</h3>
+                <p class="text-muted mb-4">View comprehensive financial summary including revenue, expenses, and profit analysis</p>
+                <a href="{% url 'finance:financial_summary_report' %}" class="btn btn-primary-custom">
+                    <i class="bi bi-file-text me-2"></i>View Financial Report
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    const addItemBtn = document.getElementById('addNewItemRowBtn');
+    const modalItemsBody = document.getElementById('modalItemsBody');
+    const saveBtn = document.getElementById('saveInvoiceBtn');
+    const grandTotalDisplay = document.getElementById('grandTotalDisplay');
+    
+    // Load customers when modal opens
+    const createInvoiceModal = document.getElementById('createInvoiceModal');
+    if (createInvoiceModal) {
+        createInvoiceModal.addEventListener('show.bs.modal', function() {
+            loadCustomers();
+        });
+    }
+    
+    function loadCustomers() {
+        const customerSelect = document.getElementById('customer');
+        
+        fetch('/finance/api/customers/', {
+            method: 'GET',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Customer data:', data);
+            if (data.success) {
+                customerSelect.innerHTML = '<option value="">Select customer...</option>';
+                
+                if (data.customers.length === 0) {
+                    customerSelect.innerHTML += '<option value="" disabled>No customers found</option>';
+                } else {
+                    data.customers.forEach(customer => {
+                        const option = document.createElement('option');
+                        option.value = customer;
+                        option.textContent = customer;
+                        customerSelect.appendChild(option);
+                    });
+                }
+            } else {
+                customerSelect.innerHTML = '<option value="">Error loading customers</option>';
+                console.error('Error loading customers:', data.message);
+                alert('Error loading customers: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Fetch error:', error);
+            customerSelect.innerHTML = '<option value="">Error loading customers</option>';
+            alert('Network error loading customers. Please check console.');
+        });
+    }
+
+    if (addItemBtn && modalItemsBody) {
+        addItemBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td><input type="text" class="form-control form-control-sm item-desc" required></td>
+                <td><input type="number" class="form-control form-control-sm item-qty" value="1" min="1"></td>
+                <td><input type="number" class="form-control form-control-sm item-price" placeholder="0" required></td>
+                <td class="row-total small fw-bold pt-2">0.00</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-link text-danger p-0 remove-row" style="font-size:1.2rem; text-decoration:none;">×</button>
+                </td>
+            `;
+            modalItemsBody.appendChild(tr);
+        });
+    }
+
+    // Calculation Logic
+    if (modalItemsBody && grandTotalDisplay) {
+        modalItemsBody.addEventListener('input', function() {
+            let grandTotal = 0;
+            const rows = modalItemsBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const price = parseFloat(row.querySelector('.item-price').value) || 0;
+                const total = qty * price;
+                row.querySelector('.row-total').textContent = total.toFixed(2);
+                grandTotal += total;
+            });
+            grandTotalDisplay.textContent = grandTotal.toLocaleString(undefined, {minimumFractionDigits: 2});
+        });
+
+        // Delete Row Logic
+        modalItemsBody.addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-row')) {
+                e.target.closest('tr').remove();
+                modalItemsBody.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        });
+    }
+
+   if (saveBtn && grandTotalDisplay) {
+    saveBtn.onclick = function() {
+        const invoiceNumber = document.getElementById('formInvoiceID').value;
+        const customerName = document.getElementById('customer').value;
+        const invoiceDate = document.getElementById('invoiceDate').value;
+
+        if(!invoiceNumber || !customerName || !invoiceDate) { 
+            alert("Please fill all required fields"); 
+            return; 
+        }
+
+        // Collect items from table
+        const rows = modalItemsBody.querySelectorAll('tr');
+        const items = [];
+        rows.forEach(row => {
+            const desc = row.querySelector('.item-desc').value;
+            const qty = row.querySelector('.item-qty').value;
+            const price = row.querySelector('.item-price').value;
+            
+            if (desc && qty && price) {
+                items.push({
+                    description: desc,
+                    quantity: parseInt(qty),
+                    unit_price: parseFloat(price)
+                });
+            }
+        });
+
+        if (items.length === 0) {
+            alert("Please add at least one item");
+            return;
+        }
+
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('invoice_number', invoiceNumber);
+        formData.append('customer_name', customerName);
+        formData.append('invoice_date', invoiceDate);
+        formData.append('items', JSON.stringify(items));
+
+        // Send to API
+        fetch('/finance/api/invoices/create/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Invoice created successfully!');
+                
+                // Reload page to show new invoice
+                window.location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred while creating the invoice');
+        });
+    };
+}
+        });
+
+    // Handle invoice status change
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('status-option') || e.target.closest('.status-option')) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const link = e.target.classList.contains('status-option') ? e.target : e.target.closest('.status-option');
+            const invoiceId = link.dataset.invoiceId;
+            const newStatus = link.dataset.status;
+            const button = document.querySelector(`button[data-invoice-id="${invoiceId}"]`);
+            const originalStatus = button.dataset.currentStatus;
+            
+            if (confirm(`Change invoice status to "${newStatus}"?`)) {
+                const formData = new FormData();
+                formData.append('status', newStatus);
+                
+                // Send to correct update status API
+                fetch(`/finance/api/invoices/${invoiceId}/update-status/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Status updated successfully!');
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred');
+                });
+            }
+        }
+    });
+    
+    // Handle dropdown visibility - add z-index to active row
+    document.addEventListener('show.bs.dropdown', function(e) {
+        const row = e.target.closest('tr');
+        if (row) {
+            row.classList.add('dropdown-active');
+        }
+    });
+    
+    document.addEventListener('hide.bs.dropdown', function(e) {
+        const row = e.target.closest('tr');
+        if (row) {
+            row.classList.remove('dropdown-active');
+        }
+    });
+    
+    // Handle PDF generation
+    document.addEventListener('click', function(e) {
+        if (e.target.closest('.generate-pdf-btn')) {
+            const btn = e.target.closest('.generate-pdf-btn');
+            const invoiceId = btn.dataset.invoiceId;
+            
+            // Open PDF in new window
+            window.open(`/finance/invoices/${invoiceId}/pdf/`, '_blank');
+        }
+        
+        // Handle financial report generation
+        if (e.target.closest('.generate-report-btn')) {
+            const btn = e.target.closest('.generate-report-btn');
+            const reportType = btn.dataset.reportType;
+            
+            // Show loading state
+            btn.disabled = true;
+            btn.textContent = 'Generating...';
+            
+            // Open report in new window
+            window.open(`/finance/reports/${reportType}/pdf/`, '_blank');
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.textContent = 'Download';
+            }, 2000);
+        }
+        
+        // Handle Export All PDF button
+        if (e.target.closest('.export-all-pdf-btn')) {
+            const btn = e.target.closest('.export-all-pdf-btn');
+            
+            // Show loading state
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Generating...';
+            
+            // Generate comprehensive financial summary PDF
+            window.open('/finance/api/export/pdf/', '_blank');
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }, 2000);
+        }
+        
+        // Handle Export Excel button
+        if (e.target.closest('.export-excel-btn')) {
+            const btn = e.target.closest('.export-excel-btn');
+            
+            // Show loading state
+            const originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Generating...';
+            
+            // Generate Excel export
+            window.location.href = '/finance/api/export/excel/';
+            
+            // Reset button after 2 seconds
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }, 2000);
+        }
+    });
+
+    </script>         
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom JavaScript -->
+    <script src="{% static 'main.js' %}"></script>
+</body>
+</html>

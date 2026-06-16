@@ -1,0 +1,615 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beamy Sports - Dashboard</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="logo-section">
+            <div class="logo-text">
+                <h1>Beamy Sports</h1>
+                <p>ERP System</p>
+            </div>
+            <button class="btn" id="toggleSidebar">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="nav-section">
+            <a href="{% url 'core:dashboard' %}" class="nav-item active" data-module="dashboard">
+                <i class="bi bi-grid-fill"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{% url 'production:dashboard' %}" class="nav-item" data-module="Production">
+                <i class="bi bi-gear-fill"></i>
+                <span>Production</span>
+            </a>
+            <a href="{% url 'inventory:dashboard' %}" class="nav-item" data-module="inventory">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="{% url 'suppliers:dashboard' %}" class="nav-item" data-module="SuppliersModule">
+                <i class="bi bi-truck"></i>
+                <span>Suppliers</span>
+            </a>
+            <a href="{% url 'hr:dashboard' %}" class="nav-item" data-module="HR">
+                <i class="bi bi-people-fill"></i>
+                <span>HR & Payroll</span>
+            </a>
+            <a href="{% url 'finance:dashboard' %}" class="nav-item" data-module="FinanceModule">
+                <i class="bi bi-currency-dollar"></i>
+                <span>Finance</span>
+            </a>
+            {% if user.role == 'admin' %}
+            <a href="{% url 'core:ai_insights' %}" class="nav-item" data-module="ai-insights">
+                <i class="bi bi-lightbulb-fill"></i>
+                <span>AI Insights</span>
+            </a>
+            {% endif %}
+            <a href="{% url 'core:admin_dashboard' %}" class="nav-item" data-module="admin">
+                <i class="bi bi-sliders"></i>
+                <span>Admin</span>
+            </a>
+        
+
+         
+
+</div>
+        
+        <div class="sidebar-bottom">
+            <a href="{% url 'core:help' %}" class="nav-item" data-module="help">
+                <i class="bi bi-question-circle"></i>
+                <span>Help</span>
+            </a>
+            <a href="{% url 'core:logout' %}" class="nav-item">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div id="topbar">
+        <div class="d-flex align-items-center justify-content-between h-100">
+            <!-- Left: Mobile Menu + Breadcrumbs -->
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn d-md-none" id="mobileMenuToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item active">Dashboard</li>
+                    </ol>
+                </nav>
+            </div>
+
+            <!-- Right: Search, Notifications, User -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Search -->
+                <button class="btn d-none d-md-flex" data-bs-toggle="modal" data-bs-target="#searchModal">
+                    <i class="bi bi-search"></i>
+                </button>
+
+               <!-- Notifications Dropdown -->
+<div class="dropdown notification-dropdown">
+    <button class="btn position-relative" id="notificationDropdown" data-bs-toggle="dropdown" data-dropdown="notifications">
+        <i class="bi bi-bell"></i>
+        <span class="notification-badge"></span>
+    </button>
+    
+    <!-- Backdrop overlay -->
+    <div class="dropdown-backdrop" id="notificationBackdrop"></div>
+    
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" data-dropdown="notifications" aria-labelledby="notificationDropdown">
+        <button class="dropdown-close-btn" onclick="closeNotificationDropdown()">
+            <i class="bi bi-x"></i>
+        </button>
+        
+        <h6 class="dropdown-header">Notifications ({{ unread_notification_count|default:0 }})</h6>
+        <div class="dropdown-divider"></div>
+        
+        {% if notifications %}
+            {% for notification in notifications %}
+            <div class="notification-item">
+                <div class="notification-content">
+                    <div class="notification-icon {{ notification.notification_type }}">
+                        <i class="bi bi-{% if notification.notification_type == 'warning' %}exclamation-triangle{% elif notification.notification_type == 'info' %}info-circle{% else %}check-circle{% endif %}-fill"></i>
+                    </div>
+                    <div class="notification-details">
+                        <div class="notification-title">{{ notification.title }}</div>
+                        <div class="notification-message">{{ notification.message }}</div>
+                        <div class="notification-time">{{ notification.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+            </div>
+            {% if not forloop.last %}<div class="dropdown-divider"></div>{% endif %}
+            {% endfor %}
+        {% else %}
+            <div class="notification-item">
+                <div class="notification-content">
+                    <div class="notification-details">
+                        <div class="notification-message text-center text-muted">No new notifications</div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        
+        <div class="dropdown-divider"></div>
+        <a href="#" class="dropdown-item text-center small fw-medium">View all notifications</a>
+    </div>
+</div>
+
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <div class="user-avatar">
+                            {{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}
+                        </div>
+                        <div class="text-start d-none d-lg-block">
+                            <p class="mb-0 small fw-medium" style="color: var(--text-primary);">{{ user.get_full_name|default:"User" }}</p>
+                            <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">{{ user.get_role_display|default:"User" }}</p>
+                        </div>
+                        <i class="bi bi-chevron-down d-none d-lg-block" style="font-size: 12px;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">My Account</h6></li>
+                        <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>Profile Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:change_password' %}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'core:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="page-header mb-4">
+            <h1>Dashboard</h1>
+            <p>Welcome back! Here's what's happening with your business today.</p>
+        </div>
+
+        <!-- KPI Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-fill">
+                                <p class="kpi-label">Pending Production Orders</p>
+                                <div class="kpi-value">{{ pending_production_orders|default:0 }}</div>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Active orders</p>
+                            </div>
+                            <div class="icon-box" style="background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);">
+                                <i class="bi bi-gear-fill text-white" style="font-size: 22px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-fill">
+                                <p class="kpi-label">Inventory Alerts</p>
+                                <div class="kpi-value">{{ inventory_alerts|default:0 }}</div>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Low stock items</p>
+                            </div>
+                            <div class="icon-box" style="background: linear-gradient(135deg, #F093FB 0%, #F5576C 100%);">
+                                <i class="bi bi-exclamation-triangle-fill text-white" style="font-size: 22px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-fill">
+                                <p class="kpi-label">Open Purchase Orders</p>
+                                <div class="kpi-value">{{ open_purchase_orders|default:0 }}</div>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Pending & approved</p>
+                            </div>
+                            <div class="icon-box" style="background: linear-gradient(135deg, #4FACFE 0%, #00F2FE 100%);">
+                                <i class="bi bi-box-seam-fill text-white" style="font-size: 22px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="card kpi-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-fill">
+                                <p class="kpi-label">Cash Balance</p>
+                                <div class="kpi-value">${{ cash_balance|floatformat:0|default:0 }}</div>
+                                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;">Revenue - Expenses</p>
+                            </div>
+                            <div class="icon-box" style="background: linear-gradient(135deg, #43E97B 0%, #38F9D7 100%);">
+                                <i class="bi bi-currency-dollar text-white" style="font-size: 22px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <!-- Quick Actions -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h3 class="card-title">Quick Actions</h3>
+        <div class="quick-actions">
+            <a href="{% url 'production:dashboard' %}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-circle me-2"></i>Create Production Order
+            </a>
+            <a href="{% url 'suppliers:dashboard' %}" class="btn btn-primary-custom">
+                <i class="bi bi-plus-circle me-2"></i>Create Purchase Order
+            </a>
+            <a href="{% url 'inventory:dashboard' %}" class="btn btn-primary-custom">
+                <i class="bi bi-box-arrow-in-down me-2"></i>Receive Goods
+            </a>
+            <a href="{% url 'hr:dashboard' %}" class="btn btn-primary-custom">
+                <i class="bi bi-calculator me-2"></i>Run Payroll
+            </a>
+            <a href="{% url 'finance:dashboard' %}" class="btn btn-primary-custom">
+                <i class="bi bi-file-text me-2"></i>Generate Invoice
+            </a>
+        </div>
+    </div>
+</div>
+
+        <!-- Main Widgets Grid -->
+        <div class="row g-3 mb-4">
+            <!-- Production Progress -->
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="card-title mb-0">Production Progress</h3>
+                            <a href="{% url 'production:dashboard' %}" class="btn btn-sm btn-outline-primary-custom">View All</a>
+                        </div>
+                        <div class="production-progress-container">
+                            {% if production_orders %}
+                                {% for order in production_orders %}
+                                <div class="production-progress-item {% if not forloop.last %}mb-4{% else %}mb-0{% endif %}">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-medium" style="font-size: 13px;">{{ order.order_id }}</span>
+                                        <span style="font-size: 13px; color: var(--text-secondary);">{{ order.customer_name }}</span>
+                                        <span class="fw-medium" style="font-size: 13px; color: var(--primary);">{{ order.progress_percentage|default:0 }}%</span>
+                                    </div>
+                                    <div class="progress" style="height: 12px;">
+                                        <div class="progress-bar" role="progressbar" style="width: {{ order.progress_percentage|default:0 }}%"></div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="d-flex align-items-center justify-content-center h-100">
+                                    <p class="text-muted text-center mb-0">No active production orders</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inventory Levels Chart -->
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="card-title mb-0">Inventory Levels</h3>
+                            <a href="{% url 'inventory:dashboard' %}" class="btn btn-sm btn-outline-primary-custom">View All</a>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="inventoryChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Supplier Performance -->
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="card-title mb-0">Supplier On-Time Delivery</h3>
+                            <a href="{% url 'suppliers:dashboard' %}" class="btn btn-sm btn-outline-primary-custom">View All</a>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="supplierChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Demand Forecast -->
+            <div class="col-12 col-lg-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="card-title mb-0">AI Demand Forecast</h3>
+                            <span class="badge badge-info">
+                                <i class="bi bi-stars"></i>AI Powered
+                            </span>
+                        </div>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="forecastChart"></canvas>
+                        </div>
+                        <div class="alert alert-info mt-3 mb-0">
+                            <div class="d-flex gap-2">
+                                <i class="bi bi-lightbulb-fill"></i>
+                                <p class="mb-0 small"><strong>AI Insight:</strong> {{ forecast_recommendation }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3 class="card-title mb-0">Recent Activity</h3>
+                    <a href="{% url 'core:admin_dashboard' %}" class="btn btn-sm btn-outline-primary-custom">View Audit Logs</a>
+                </div>
+                <div>
+                    {% if recent_activities %}
+                        {% for activity in recent_activities %}
+                        <div class="activity-item d-flex gap-3">
+                            <div class="activity-icon">
+                                {% if activity.action == "Login" %}
+                                    <i class="bi bi-box-arrow-in-right text-success"></i>
+                                {% elif activity.action == "Logout" %}
+                                    <i class="bi bi-box-arrow-right text-muted"></i>
+                                {% elif activity.action == "Add User" or activity.action == "Create" %}
+                                    <i class="bi bi-plus-circle text-primary"></i>
+                                {% elif activity.action == "Update User" or activity.action == "Update" %}
+                                    <i class="bi bi-pencil-square text-info"></i>
+                                {% elif activity.action == "Delete User" or activity.action == "Delete" %}
+                                    <i class="bi bi-trash text-danger"></i>
+                                {% else %}
+                                    <i class="bi bi-clock text-secondary"></i>
+                                {% endif %}
+                            </div>
+                            <div class="flex-fill">
+                                <p class="mb-1 small">
+                                    <strong>{{ activity.user.get_full_name|default:"System" }}</strong> 
+                                    <span style="color: var(--text-secondary);">{{ activity.action|lower }}</span> 
+                                    in <strong>{{ activity.module }}</strong>
+                                </p>
+                                <p class="mb-0" style="font-size: 12px; color: var(--text-muted);">{{ activity.description }}</p>
+                            </div>
+                            <span style="font-size: 12px; color: var(--text-muted); white-space: nowrap;">{{ activity.timestamp|timesince }} ago</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- System Health -->
+        <div class="card system-health mb-0">
+            <div class="card-body py-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="status-dot" style="background: var(--success);"></div>
+                    <div class="flex-fill">
+                        <p class="mb-0 small fw-medium" style="color: var(--success);">All systems operational</p>
+                        <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">Last checked: {{ current_time|date:"M d, Y g:i A" }}</p>
+                    </div>
+                    <span class="badge badge-success">
+                        <i class="bi bi-check-circle-fill"></i>99.9% Uptime
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Search Modal -->
+    <div class="modal fade" id="searchModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Search</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" placeholder="Search anything... (Ctrl+K)">
+                    <div class="mt-3">
+                        <p class="small text-muted mb-2">Quick Links:</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge badge-muted" style="cursor: pointer;">Production Orders</span>
+                            <span class="badge badge-muted" style="cursor: pointer;">Inventory Items</span>
+                            <span class="badge badge-muted" style="cursor: pointer;">Suppliers</span>
+                            <span class="badge badge-muted" style="cursor: pointer;">Employees</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Order Modal -->
+    <div class="modal fade" id="createOrderModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Production Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">Customer Name</label>
+                            <input type="text" class="form-control" placeholder="Enter customer name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product</label>
+                            <select class="form-select">
+                                <option selected>Select product...</option>
+                                <option>Soccer Ball - Professional</option>
+                                <option>Basketball - Indoor</option>
+                                <option>Running Shoes - Men's</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" placeholder="Enter quantity">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Due Date</label>
+                                    <input type="date" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" rows="3" placeholder="Add any special instructions..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary-custom" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom">Create Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div class="modal fade" id="addItemModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add Inventory Item</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label class="form-label">SKU</label>
+                            <input type="text" class="form-control" placeholder="Enter SKU">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Product Name</label>
+                            <input type="text" class="form-control" placeholder="Enter product name">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Category</label>
+                            <select class="form-select">
+                                <option selected>Select category...</option>
+                                <option>Balls</option>
+                                <option>Footwear</option>
+                                <option>Apparel</option>
+                                <option>Equipment</option>
+                            </select>
+                        </div>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" placeholder="Enter quantity">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Unit Price</label>
+                                    <input type="number" class="form-control" placeholder="Enter price">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary-custom" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary-custom">Add Item</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Pass Django data to JavaScript -->
+    {{ inventory_chart_data.labels|json_script:"inventory-labels" }}
+    {{ inventory_chart_data.current_stock|json_script:"inventory-stock" }}
+    {{ inventory_chart_data.reorder_level|json_script:"inventory-reorder" }}
+    {{ supplier_chart_data.labels|json_script:"supplier-labels" }}
+    {{ supplier_chart_data.percentages|json_script:"supplier-percentages" }}
+    {{ forecast_labels|json_script:"forecast-labels" }}
+    {{ forecast_demand|json_script:"forecast-demand" }}
+    
+    <script>
+        // Parse Django data from JSON scripts
+        try {
+            window.dashboardData = {
+                inventory: {
+                    labels: JSON.parse(document.getElementById('inventory-labels')?.textContent || '[]'),
+                    currentStock: JSON.parse(document.getElementById('inventory-stock')?.textContent || '[]'),
+                    reorderLevel: JSON.parse(document.getElementById('inventory-reorder')?.textContent || '[]')
+                },
+                supplier: {
+                    labels: JSON.parse(document.getElementById('supplier-labels')?.textContent || '[]'),
+                    percentages: JSON.parse(document.getElementById('supplier-percentages')?.textContent || '[]')
+                },
+                forecast: {
+                    labels: JSON.parse(document.getElementById('forecast-labels')?.textContent || '[]'),
+                    demand: JSON.parse(document.getElementById('forecast-demand')?.textContent || '[]')
+                }
+            };
+            
+            console.log('Dashboard data loaded:', window.dashboardData);
+            console.log('Inventory labels:', window.dashboardData.inventory.labels);
+            console.log('Supplier labels:', window.dashboardData.supplier.labels);
+            console.log('Forecast labels:', window.dashboardData.forecast.labels);
+        } catch (error) {
+            console.error('Error parsing dashboard data:', error);
+            // Fallback to empty arrays
+            window.dashboardData = {
+                inventory: { labels: [], currentStock: [], reorderLevel: [] },
+                supplier: { labels: [], percentages: [] },
+                forecast: { labels: [], demand: [] }
+            };
+        }
+    </script>
+    
+    <!-- Custom JavaScript -->
+    <script src="{% static 'main.js' %}"></script>
+</body>
+</html>

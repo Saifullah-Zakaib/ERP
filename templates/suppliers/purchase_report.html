@@ -1,0 +1,313 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purchase Report - Beamy Sports ERP</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <!-- Sidebar -->
+    <div id="sidebar">
+        <div class="logo-section">
+            <div class="logo-text">
+                <h1>Beamy Sports</h1>
+                <p>ERP System</p>
+            </div>
+            <button class="btn" id="toggleSidebar"><i class="bi bi-chevron-left"></i></button>
+        </div>
+
+        <div class="nav-section">
+            <a href="{% url 'core:dashboard' %}" class="nav-item"><i class="bi bi-grid-fill"></i><span>Dashboard</span></a>
+            <a href="{% url 'production:dashboard' %}" class="nav-item"><i class="bi bi-gear-fill"></i><span>Production</span></a>
+            <a href="{% url 'inventory:dashboard' %}" class="nav-item"><i class="bi bi-box-seam-fill"></i><span>Inventory</span></a>
+            <a href="{% url 'suppliers:dashboard' %}" class="nav-item active"><i class="bi bi-truck"></i><span>Suppliers</span></a>
+            <a href="{% url 'hr:dashboard' %}" class="nav-item"><i class="bi bi-people-fill"></i><span>HR & Payroll</span></a>
+            <a href="{% url 'finance:dashboard' %}" class="nav-item"><i class="bi bi-currency-dollar"></i><span>Finance</span></a>
+            <a href="{% url 'core:admin_dashboard' %}" class="nav-item"><i class="bi bi-sliders"></i><span>Admin</span></a>
+        </div>
+
+        <div class="sidebar-bottom">
+            <a href="{% url 'core:help' %}" class="nav-item"><i class="bi bi-question-circle"></i><span>Help</span></a>
+            <a href="{% url 'core:logout' %}" class="nav-item"><i class="bi bi-box-arrow-right"></i><span>Logout</span></a>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div id="topbar">
+        <div class="d-flex align-items-center justify-content-between h-100">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn d-md-none" id="mobileMenuToggle"><i class="bi bi-list"></i></button>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'suppliers:dashboard' %}">Suppliers</a></li>
+                        <li class="breadcrumb-item active">Purchase Report</li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="dropdown">
+                    <button class="btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <div class="user-avatar">{{ user.first_name.0|default:"U" }}{{ user.last_name.0|default:"" }}</div>
+                        <div class="text-start d-none d-lg-block">
+                            <p class="mb-0 small fw-medium">{{ user.get_full_name|default:"User" }}</p>
+                            <p class="mb-0" style="font-size: 12px;">{{ user.get_role_display|default:"User" }}</p>
+                        </div>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'core:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div id="main-content">
+        <div class="page-header mb-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h1>Purchase Report</h1>
+                    <p>Analysis for period: {{ start_date|date:"M d, Y" }} - {{ end_date|date:"M d, Y" }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" onclick="window.print()">
+                        <i class="bi bi-printer me-2"></i>Print Report
+                    </button>
+                    <a href="{% url 'suppliers:dashboard' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-left me-2"></i>Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--primary-light); color: var(--primary);">
+                        <i class="bi bi-receipt"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ total_orders }}</div>
+                        <div class="stat-label">Total Orders</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--success-light); color: var(--success);">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">${{ total_value|floatformat:0 }}</div>
+                        <div class="stat-label">Total Value</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--info-light); color: var(--info);">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">${{ avg_order_value|floatformat:0 }}</div>
+                        <div class="stat-label">Avg Order Value</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-icon" style="background: var(--warning-light); color: var(--warning);">
+                        <i class="bi bi-clock-history"></i>
+                    </div>
+                    <div>
+                        <div class="stat-value">{{ status_breakdown.pending }}</div>
+                        <div class="stat-label">Pending Orders</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Breakdown -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Order Status Breakdown</h5>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Pending</span>
+                                <strong>{{ status_breakdown.pending }}</strong>
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-warning" style="width: {% widthratio status_breakdown.pending total_orders 100 %}%">
+                                    {% widthratio status_breakdown.pending total_orders 100 %}%
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Received</span>
+                                <strong>{{ status_breakdown.received }}</strong>
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-success" style="width: {% widthratio status_breakdown.received total_orders 100 %}%">
+                                    {% widthratio status_breakdown.received total_orders 100 %}%
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Cancelled</span>
+                                <strong>{{ status_breakdown.cancelled }}</strong>
+                            </div>
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar bg-danger" style="width: {% widthratio status_breakdown.cancelled total_orders 100 %}%">
+                                    {% widthratio status_breakdown.cancelled total_orders 100 %}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Suppliers -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Top 5 Suppliers by Spend</h5>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Supplier</th>
+                                        <th class="text-center">Orders</th>
+                                        <th class="text-end">Total Spend</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for supplier in top_suppliers %}
+                                    <tr>
+                                        <td>{{ supplier.supplier__name }}</td>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark border">{{ supplier.order_count }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong>${{ supplier.total_spend|floatformat:2 }}</strong>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">No data available</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monthly Trend -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Monthly Purchase Trend (Last 6 Months)</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Month</th>
+                                <th class="text-center">Orders</th>
+                                <th class="text-end">Total Value</th>
+                                <th class="text-end">Avg Order Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for month in monthly_data %}
+                            <tr>
+                                <td><strong>{{ month.month }}</strong></td>
+                                <td class="text-center">{{ month.orders }}</td>
+                                <td class="text-end">${{ month.value|floatformat:2 }}</td>
+                                <td class="text-end">
+                                    {% if month.orders > 0 %}
+                                        ${% widthratio month.value month.orders 1 %}
+                                    {% else %}
+                                        $0
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No data available</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Purchase Orders -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title mb-4">Recent Purchase Orders</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>PO Number</th>
+                                <th>Supplier</th>
+                                <th>Order Date</th>
+                                <th>Expected Delivery</th>
+                                <th class="text-end">Amount</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for po in purchase_orders %}
+                            <tr>
+                                <td><strong>{{ po.po_number }}</strong></td>
+                                <td>{{ po.supplier.name|default:po.supplier_name|default:"Deleted Supplier" }}</td>
+                                <td>{{ po.order_date|date:"M d, Y" }}</td>
+                                <td>{{ po.expected_delivery|date:"M d, Y" }}</td>
+                                <td class="text-end">${{ po.total_amount|floatformat:2 }}</td>
+                                <td>
+                                    {% if po.status == 'pending' %}
+                                        <span class="badge bg-warning">Pending</span>
+                                    {% elif po.status == 'received' %}
+                                        <span class="badge bg-success">Received</span>
+                                    {% elif po.status == 'cancelled' %}
+                                        <span class="badge bg-danger">Cancelled</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">{{ po.get_status_display }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">
+                                    No purchase orders for this period
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'main.js' %}"></script>
+</body>
+</html>

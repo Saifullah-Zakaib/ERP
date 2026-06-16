@@ -1,0 +1,532 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beamy Sports - Inventory & Order Management</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+    
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+
+    <style>
+        /* Status Modal Custom Styles */
+        /* Global Scroll Fix */
+    /* Container fix taake scroll na aaye */
+#main-content {
+    padding: 20px;
+    width: 100%;
+    max-width: calc(100vw - 260px); /* Sidebar ki width nikaal kar */
+    overflow-x: hidden;
+}
+
+/* Card layout settings */
+.card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    width: 100%; /* Card full width rahegi content area ki */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+/* Table container fix */
+.table-responsive {
+    overflow-x: hidden !important; /* Scroll bilkul khatam */
+    padding: 0 15px;
+}
+
+/* Table columns adjustment */
+.table {
+    width: 100% !important;
+    margin-bottom: 0;
+    table-layout: fixed; /* Isse columns control mein rehte hain */
+}
+
+.table th, .table td {
+    padding: 12px 8px !important;
+    vertical-align: middle;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Specific Column Widths taake spacing sahi rahe */
+/* Inventory Table Columns */
+.inventory-table th:nth-child(1) { width: 15%; } /* SKU */
+.inventory-table th:nth-child(2) { width: 35%; } /* Product Name */
+.inventory-table th:nth-child(3) { width: 20%; } /* Category */
+.inventory-table th:nth-child(4) { width: 15%; } /* Qty */
+.inventory-table th:nth-child(5) { width: 15%; } /* Status */
+
+/* Orders Table Columns */
+.orders-table th:nth-child(1) { width: 20%; } /* Order ID */
+.orders-table th:nth-child(2) { width: 25%; } /* Customer */
+.orders-table th:nth-child(3) { width: 25%; } /* Product */
+.orders-table th:nth-child(4) { width: 10%; } /* Qty */
+.orders-table th:nth-child(5) { width: 20%; } /* Action */
+
+/* Action Button styling */
+.btn-sm {
+    padding: 4px 12px;
+    font-size: 12px;
+}
+
+/* Hidden class for status modal views */
+.hidden {
+    display: none !important;
+}
+
+#topbar {
+    height: 70px;               /* Matches the sidebar logo-section height */
+    background: white;
+    border-bottom: 1px solid var(--gray-200); /* Same line color as sidebar */
+    padding: 0 30px;           /* Standardized padding */
+    display: flex;
+    align-items: center;       /* Centers content so the line stays straight */
+    margin-bottom: 0;          /* Removes any gap */
+}
+
+/* Fixes the breadcrumb alignment inside the topbar */
+
+
+/* Ensures the sidebar line and topbar line are at the same Y-axis */
+.logo-section {
+    height: 70px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+/* --- Global Cancel Button Styling --- */
+.btn-cancel-custom {
+    background-color: #ffffff;
+    color: #6c757d;
+    border: 1px solid #d1d5db;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+/* Hover effect for ALL cancel buttons: Turn Red */
+.btn-cancel-custom:hover {
+    background-color: #dc3545 !important; /* Bootstrap Red */
+    border-color: #dc3545 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
+}
+    </style>
+</head>
+<body>
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    <div id="sidebar">
+        <div class="logo-section">
+            <div class="logo-text">
+                <h1>Beamy Sports</h1>
+                <p>ERP System</p>
+            </div>
+            <button class="btn" id="toggleSidebar">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+        </div>
+
+        <div class="nav-section">
+            <a href="{% url 'inventory:dashboard' %}" class="nav-item active" data-module="inventory">
+                <i class="bi bi-box-seam-fill"></i>
+                <span>Inventory</span>
+            </a>
+            {% if user.role == 'admin' %}
+            <a href="{% url 'core:ai_insights' %}" class="nav-item" data-module="ai-insights">
+                <i class="bi bi-lightbulb-fill"></i>
+                <span>AI Insights</span>
+            </a>
+            {% endif %}
+        </div>
+
+        <div class="sidebar-bottom">
+            <a href="{% url 'core:help' %}" class="nav-item" data-module="help">
+                <i class="bi bi-question-circle"></i>
+                <span>Help</span>
+            </a>
+            <a href="{% url 'core:logout' %}" class="nav-item">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Top Bar -->
+    <div id="topbar">
+        <div class="d-flex align-items-center justify-content-between h-100">
+            <!-- Left: Mobile Menu + Breadcrumbs -->
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn d-md-none" id="mobileMenuToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'core:dashboard' %}" class="text-decoration-none">Dashboard</a></li>
+                        <li class="breadcrumb-item active">Inventory</li>
+                    </ol>
+                </nav>
+            </div>
+            
+
+            <!-- Right: Search, Notifications, User -->
+            <div class="d-flex align-items-center gap-2">
+                <!-- Search -->
+                <button class="btn d-none d-md-flex" data-bs-toggle="modal" data-bs-target="#searchModal">
+                    <i class="bi bi-search"></i>
+                </button>
+
+              
+               <!-- Notifications Dropdown -->
+<div class="dropdown notification-dropdown">
+    <button class="btn position-relative" id="notificationDropdown" data-bs-toggle="dropdown" data-dropdown="notifications">
+        <i class="bi bi-bell"></i>
+        {% if unread_notification_count > 0 %}
+        <span class="notification-badge">{{ unread_notification_count }}</span>
+        {% endif %}
+    </button>
+    
+    <!-- Backdrop overlay -->
+    <div class="dropdown-backdrop" id="notificationBackdrop"></div>
+    
+    <!-- Dropdown Menu -->
+    <div class="dropdown-menu" data-dropdown="notifications" aria-labelledby="notificationDropdown">
+        <button class="dropdown-close-btn" onclick="closeNotificationDropdown()">
+            <i class="bi bi-x"></i>
+        </button>
+        
+        <h6 class="dropdown-header">Notifications ({{ unread_notification_count }})</h6>
+        <div class="dropdown-divider"></div>
+        
+        {% if notifications %}
+            {% for notification in notifications %}
+            <div class="notification-item">
+                <div class="notification-content">
+                    <div class="notification-icon {{ notification.notification_type }}">
+                        {% if notification.notification_type == 'danger' %}
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        {% elif notification.notification_type == 'warning' %}
+                            <i class="bi bi-exclamation-circle-fill"></i>
+                        {% elif notification.notification_type == 'success' %}
+                            <i class="bi bi-check-circle-fill"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill"></i>
+                        {% endif %}
+                    </div>
+                    <div class="notification-details">
+                        <div class="notification-title">{{ notification.title }}</div>
+                        <div class="notification-message">{{ notification.message }}</div>
+                        <div class="notification-time">{{ notification.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+            </div>
+            {% if not forloop.last %}
+            <div class="dropdown-divider"></div>
+            {% endif %}
+            {% endfor %}
+        {% else %}
+        <div class="notification-item">
+            <div class="notification-content">
+                <div class="notification-details">
+                    <div class="notification-message text-center text-muted">No new notifications</div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="dropdown-divider"></div>
+       <a href="{% url 'core:notifications' %}" class="dropdown-item text-center small fw-medium">
+    View all notifications
+</a>
+    </div>
+</div>
+  <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <div class="user-avatar">
+                            JS
+                        </div>
+                        <div class="text-start d-none d-lg-block">
+                            <p class="mb-0 small fw-medium" style="color: var(--text-primary);">{{ user.get_full_name }}</p>
+                            <p class="mb-0" style="font-size: 12px; color: var(--text-secondary);">{{ user.get_role_display }}</p>
+                        </div>
+                        <i class="bi bi-chevron-down d-none d-lg-block" style="font-size: 12px;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">My Account</h6></li>
+                        <li><a class="dropdown-item" href="{% url 'core:profile' %}"><i class="bi bi-person me-2"></i>Profile Settings</a></li>
+                        <li><a class="dropdown-item" href="{% url 'core:change_password' %}"><i class="bi bi-key me-2"></i>Change Password</a></li>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'core:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+   
+    <div id="main-content">
+        <div class="page-header mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h1>Inventory & Order Management</h1>
+                    <p>Track stock levels and process customer orders dynamically</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#addOrderModal">
+                        <i class="bi bi-plus-circle me-2"></i>Add Order
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Current Inventory Status</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover inventory-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>SKU</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Qty</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in inventory_items %}
+                            <tr>
+                                <td><span class="fw-medium">{{ item.sku }}</span></td>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.get_category_display }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>
+                                    {% if item.status == 'in_stock' %}
+                                        <span class="badge bg-success">In Stock</span>
+                                    {% elif item.status == 'low_stock' %}
+                                        <span class="badge bg-warning">Low Stock</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Out of Stock</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" 
+                                            onclick="editItem({{ item.id }}, '{{ item.sku }}', '{{ item.name }}', {{ item.quantity }}, {{ item.reorder_level }}, {{ item.unit_price }}, '{{ item.location }}', '{{ item.category }}', '{{ item.description|escapejs }}')">
+                                        Edit
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No inventory items found</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Active Orders</h3>
+                <div class="table-responsive">
+                    <table class="table table-hover orders-table">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orderList">
+                            {% for order in customer_orders %}
+                            <tr>
+                                <td>{{ order.order_number }}</td>
+                                <td>{{ order.customer_name }}</td>
+                                <td>{{ order.product_name }}</td>
+                                <td>{{ order.quantity }}</td>
+                                <td class="text-end">
+                                    <button class="btn btn-primary-custom btn-sm" 
+                                            onclick="processOrder({{ order.id }}, '{{ order.order_number }}', '{{ order.product_name }}', {{ order.quantity }})">
+                                        Check Status
+                                    </button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No pending orders</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<!-- Edit Item Modal -->
+<div class="modal fade" id="editItemModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold">Edit Inventory Item</h5>
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editItemForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">SKU</label>
+                            <input type="text" id="editSku" class="form-control" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Product Name</label>
+                            <input type="text" id="editName" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Quantity</label>
+                            <input type="number" id="editQuantity" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Reorder Level (Threshold)</label>
+                            <input type="number" id="editReorderLevel" class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Unit Price</label>
+                            <input type="number" id="editUnitPrice" class="form-control" step="0.01" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Location</label>
+                            <input type="text" id="editLocation" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Category</label>
+                            <select id="editCategory" class="form-select" required>
+                                <option value="balls">Balls</option>
+                                <option value="footwear">Footwear</option>
+                                <option value="apparel">Apparel</option>
+                                <option value="equipment">Equipment</option>
+                                <option value="raw_materials">Raw Materials</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Description</label>
+                            <textarea id="editDescription" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel-custom" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary-custom" id="saveEditBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Order Modal -->
+<div class="modal fade" id="addOrderModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header d-flex justify-content-between align-items-center">
+                <h5 class="modal-title fw-bold">Create New Order</h5>
+                <button type="button" class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="orderForm">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Order ID</label>
+                            <input type="text" id="orderId" class="form-control" placeholder="#ORD-000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Customer Name</label>
+                            <input type="text" id="custName" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Product Name</label>
+                            <input type="text" id="prodName" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Quantity</label>
+                            <input type="number" id="qty" class="form-control">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-cancel-custom" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary-custom" id="saveOrderBtn">Save Order</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Modal -->
+<div class="modal fade" id="statusModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title">Inventory Analysis: <span id="displayOrderID"></span></h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body py-4">
+                <div id="loader" class="text-center">
+                    <div class="spinner-border text-primary mb-2" role="status" style="display: none;"></div>
+                </div>
+
+                <div id="resultArea" style="display: none;">
+                    <div id="statusBox" class="analysis-card mb-4" style="padding: 15px; border-radius: 8px; border: 2px solid;">
+                        <h5 id="statusTitle" class="mb-1"></h5>
+                        <p id="statusDesc" class="small mb-0"></p>
+                    </div>
+
+                    <!-- All three buttons visible, but only one enabled -->
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success py-2 fw-bold" id="shipBtn" onclick="approveAndShip()" disabled>
+                            <i class="bi bi-check-circle me-2"></i>APPROVE & SHIP ORDER
+                        </button>
+                        
+                        <div id="prodSection">
+                            <label class="small fw-bold mb-1">Factory Instruction:</label>
+                            <textarea class="form-control mb-2" rows="2" id="prodNote"></textarea>
+                            <button class="btn btn-warning py-2 fw-bold w-100" id="prodBtn" onclick="sendToProduction()" disabled>
+                                <i class="bi bi-gear me-2"></i>SEND TO PRODUCTION
+                            </button>
+                        </div>
+                        
+                        <div id="suppSection">
+                            <label class="small fw-bold mb-1">Procurement Request:</label>
+                            <textarea class="form-control mb-2" rows="2" id="suppNote"></textarea>
+                            <button class="btn btn-danger py-2 fw-bold w-100" id="suppBtn" onclick="requestMaterials()" disabled>
+                                <i class="bi bi-truck me-2"></i>REQUEST RAW MATERIALS
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'main.js' %}"></script>
+    <script src="{% static 'inventory_dynamic.js' %}"></script>
+</body>
+</html>
