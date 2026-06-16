@@ -1,10 +1,11 @@
 Django==4.2.7
-python-decouple==3.8
+gunicorn
+mysqlclient
+python-decouple
 Pillow==10.4.0
-django-crispy-forms==2.1
-crispy-bootstrap5==2025.6
+
 djangorestframework==3.14.0
 django-cors-headers==4.3.1
-gunicorn
 
-mysqlclient
+django-crispy-forms==2.3
+crispy-bootstrap5==2024.2
