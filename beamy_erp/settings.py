@@ -164,3 +164,7 @@ SESSION_SAVE_EVERY_REQUEST = True
 # DEFAULT PRIMARY KEY
 # -----------------------------
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://erp-production-5c9c.up.railway.app"
+]
