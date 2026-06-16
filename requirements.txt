@@ -11,3 +11,4 @@ django-crispy-forms==2.3
 crispy-bootstrap5==2024.2
 PyMySQL==1.1.0
 cryptography
+whitenoise==6.6.0
